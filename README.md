@@ -1,8 +1,7 @@
 Working backend code for version 1 on the date 17th Feb 2026
 
-Frontend - 
-Backend -
-
+Frontend - https://juice-frontend.onrender.com
+Backend - https://juice-backend-9uhd.onrender.com
 
 📋 All Screens
 ① Home — Glass Hero
