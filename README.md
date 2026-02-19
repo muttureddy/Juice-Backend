@@ -1,6 +1,7 @@
 Working backend code for version 1 on the date 17th Feb 2026
+No payment intigration, No subscription plans
 
-Frontend - https://juice-frontend.onrender.com
+Frontend - https://juice-frontend.onrender.com     // 
 Backend - https://juice-backend-9uhd.onrender.com
 
 📋 All Screens
