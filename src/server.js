@@ -36,6 +36,7 @@ const corsOptions = {
     'http://localhost:3001',
     process.env.FRONTEND_URL,
     process.env.FRONTEND_URL_VERCEL,
+    process.env.FRONTEND_URL_VERCEL2
   ].filter(Boolean),
   credentials: true,
 };
