@@ -21,6 +21,7 @@ const express = require('express');
 const router  = express.Router();
 const jwt     = require('jsonwebtoken');
 const { getDB } = require('../db');
+const { logAction } = require('../middleware/auditLog');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'freshly_jwt_secret_change_in_prod';
 
@@ -80,6 +81,7 @@ router.post('/send-otp', async (req, res) => {
       console.log(`📱 [DEV OTP] ${phone} → ${otp}`);
     }
 
+    await logAction({ phone, role: 'user' }, 'otp_sent', 'Auth', null, {}, req);
     res.json({
       message: 'OTP sent successfully',
       ...(process.env.NODE_ENV !== 'production' && { devOtp: otp }),
@@ -120,6 +122,20 @@ router.post('/verify-otp', async (req, res) => {
       JWT_SECRET,
       { expiresIn: '30d' }
     );
+
+    await logAction(user, 'login', 'Auth', user._id, {}, req);
+
+    // ── Socket.IO: notify admin when a new user registers ──
+    const isNewUser = !user.name;
+    if (isNewUser) {
+      const io = req.app.locals.io;
+      if (io) {
+        io.to('admin').emit('new_user', {
+          message: `New user registered: ${phone}`,
+          phone,
+        });
+      }
+    }
 
     res.json({
       message: 'Login successful',

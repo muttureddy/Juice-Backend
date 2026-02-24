@@ -25,19 +25,59 @@ const express    = require('express');
 const router     = express.Router();
 const path       = require('path');
 const fs         = require('fs');
+const crypto     = require('crypto');
 const { getDB, toObjectId } = require('../db');
 const { adminAuth }         = require('../middleware/auth');
+const { logAction }         = require('../middleware/auditLog');
+
+// ── POST /cloudinary-sign  (admin) ─────────────────────────
+// Generates a signed upload credential so the frontend can
+// upload directly to Cloudinary without exposing the API secret.
+// Required env vars: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET
+router.post('/cloudinary-sign', adminAuth, (req, res) => {
+  try {
+    const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+      return res.status(500).json({ message: 'Cloudinary env vars not configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET to your .env file.' });
+    }
+
+    const timestamp = Math.round(Date.now() / 1000);
+    const folder    = 'freshly-products';
+
+    // Cloudinary signature: SHA-1 of "folder=...&timestamp=...{secret}"
+    const signStr   = `folder=${folder}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+    const signature = crypto.createHash('sha1').update(signStr).digest('hex');
+
+    res.json({
+      cloudName: CLOUDINARY_CLOUD_NAME,
+      apiKey:    CLOUDINARY_API_KEY,
+      signature,
+      timestamp,
+      folder,
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to generate Cloudinary signature', error: err.message });
+  }
+});
 
 // ── GET /  (public) ────────────────────────────────────
 router.get('/', async (req, res) => {
   try {
-    const { category, bestseller, featured, search, available } = req.query;
+    const { category, bestseller, featured, search, available, type } = req.query;
     const db    = getDB();
     const query = {};
 
     // Filters
     if (available !== 'false') query.isAvailable = true;  // default: show only available
     if (category)              query.category     = category;
+
+    // Tab filter: juice vs food (sent by ProductsPage tab switcher)
+    const FOOD_CATEGORIES = ['fruit-salad', 'bowls', 'snacks', 'healthy-bites'];
+    if (type === 'food' && !category) {
+      query.category = { $in: FOOD_CATEGORIES };
+    } else if (type === 'juice' && !category) {
+      query.category = { $nin: FOOD_CATEGORIES };
+    }
     if (bestseller === 'true') query.isBestseller = true;
     if (featured   === 'true') query.isFeatured   = true;
 
@@ -98,6 +138,7 @@ router.post('/', adminAuth, async (req, res) => {
 
     const db     = getDB();
     const result = await db.collection('products').insertOne(doc);
+    await logAction(req.user, 'product_added', 'Product', result.insertedId, { name: doc.name, price: doc.price, category: doc.category }, req);
     res.status(201).json({ ...doc, _id: result.insertedId });
   } catch (err) {
     res.status(400).json({ message: 'Failed to create product', error: err.message });
@@ -164,6 +205,7 @@ router.delete('/:id', adminAuth, async (req, res) => {
     if (result.deletedCount === 0)
       return res.status(404).json({ message: 'Product not found' });
 
+    await logAction(req.user, 'product_deleted', 'Product', req.params.id, {}, req);
     res.json({ message: 'Product deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete product' });

@@ -1,38 +1,12 @@
 /**
  * routes/orders.js
- * ─────────────────────────────────────────────────────
- * PURPOSE: Customer order placement and tracking.
- *
- * ROUTES (authenticated users):
- *   POST  /api/orders             – place new order
- *   GET   /api/orders/my-orders   – user's order list
- *   GET   /api/orders/:id         – single order detail
- *   PATCH /api/orders/:id/cancel  – cancel an order
- *
- * ORDER DOCUMENT SHAPE (collection: "orders"):
- *   orderId          – auto-generated  "FRH" + timestamp
- *   userId           – ObjectId of the logged-in user
- *   customerDetails  – { name, phone, address }
- *   items[]          – [ { productId, name, image, price, quantity } ]
- *   subtotal, deliveryFee, discount, total
- *   paymentMethod    – 'cod' | 'upi' | 'online'
- *   paymentStatus    – 'pending' | 'paid' | 'failed' | 'refunded'
- *   orderStatus      – 'pending' → 'confirmed' → 'preparing'
- *                      → 'shipped' → 'out_for_delivery' → 'delivered'
- *                      OR 'cancelled'
- *   statusHistory[]  – [ { status, note, timestamp } ]
- *   estimatedDelivery, deliveredAt, notes
- *   createdAt, updatedAt
- *
- * DELIVERY FEE:
- *   Free  when subtotal ≥ ₹299, else ₹40.
- *   Change the threshold / fee below in DELIVERY_THRESHOLD.
- * ─────────────────────────────────────────────────────
+ * Customer order placement and tracking.
+ * Emits Socket.IO events on new orders and cancellations.
  */
 
 const express = require('express');
 const router  = express.Router();
-const { getDB, toObjectId, ObjectId } = require('../db');
+const { getDB, toObjectId } = require('../db');
 const { auth } = require('../middleware/auth');
 
 const DELIVERY_THRESHOLD = 299;
@@ -52,7 +26,6 @@ router.post('/', auth, async (req, res) => {
 
     const db = getDB();
 
-    // Verify each product and calculate subtotal
     let subtotal   = 0;
     const orderItems = [];
 
@@ -100,10 +73,19 @@ router.post('/', auth, async (req, res) => {
     };
 
     const result = await db.collection('orders').insertOne(order);
-    res.status(201).json({
-      message: 'Order placed successfully!',
-      order: { ...order, _id: result.insertedId },
-    });
+    const savedOrder = { ...order, _id: result.insertedId };
+
+    // ── Socket.IO: notify admin of new order ──────────
+    const io = req.app.locals.io;
+    if (io) {
+      io.to('admin').emit('new_order', {
+        message: `New order from ${customerDetails?.name || 'customer'} — ₹${total}`,
+        orderId: savedOrder._id,
+        total,
+      });
+    }
+
+    res.status(201).json({ message: 'Order placed successfully!', order: savedOrder });
   } catch (err) {
     console.error('Create order error:', err);
     res.status(500).json({ message: 'Failed to place order', error: err.message });
@@ -129,8 +111,6 @@ router.get('/my-orders', auth, async (req, res) => {
 router.get('/:id', auth, async (req, res) => {
   try {
     const db = getDB();
-
-    // Accept either MongoDB _id or our custom orderId string
     const filter = {
       $or: [
         { orderId: req.params.id },
@@ -162,23 +142,27 @@ router.patch('/:id/cancel', auth, async (req, res) => {
     const nonCancellable = ['delivered', 'shipped', 'out_for_delivery'];
     if (nonCancellable.includes(order.orderStatus)) {
       return res.status(400).json({
-        message: `Cannot cancel order with status: ${order.orderStatus}`
+        message: `Cannot cancel order with status: ${order.orderStatus}`,
       });
     }
 
     const now       = new Date();
-    const newStatus = {
-      status: 'cancelled', note: 'Cancelled by customer', timestamp: now
-    };
+    const newStatus = { status: 'cancelled', note: 'Cancelled by customer', timestamp: now };
 
     const result = await db.collection('orders').findOneAndUpdate(
       { _id },
-      {
-        $set: { orderStatus: 'cancelled', updatedAt: now },
-        $push: { statusHistory: newStatus },
-      },
+      { $set: { orderStatus: 'cancelled', updatedAt: now }, $push: { statusHistory: newStatus } },
       { returnDocument: 'after' }
     );
+
+    // ── Socket.IO: notify admin of cancellation ──────
+    const io = req.app.locals.io;
+    if (io) {
+      io.to('admin').emit('order_cancelled', {
+        message: `Order #${order.orderId} cancelled by customer`,
+        orderId: _id,
+      });
+    }
 
     res.json({ message: 'Order cancelled', order: result });
   } catch (err) {

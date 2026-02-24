@@ -1,22 +1,26 @@
 /**
  * server.js
  * ─────────────────────────────────────────────────────
- * PURPOSE: Express app bootstrap — loads env, connects
- *          MongoDB, mounts routes, starts listening.
+ * Express + Socket.IO server.
+ * Socket rooms:
+ *   "admin"     – all admin connections join this
+ *   userId      – each user joins their own userId room
  *
- * TO ADD A NEW ROUTE FILE:
- *   1. Create  src/routes/yourRoute.js
- *   2. const yourRoute = require('./routes/yourRoute');
- *   3. app.use('/api/yourRoute', yourRoute);
- *
- * PORT: set via .env  PORT=5000  (default 5000)
- * CORS: origins listed in corsOptions below
+ * Events emitted TO clients:
+ *   new_order          → "admin" room
+ *   payment_received   → "admin" room
+ *   low_stock          → "admin" room
+ *   new_user           → "admin" room
+ *   order_status       → userId room (specific customer)
+ *   order_cancelled    → "admin" room + userId room
  * ─────────────────────────────────────────────────────
  */
 
 require('dotenv').config();
-const express = require('express');
-const cors    = require('cors');
+const express  = require('express');
+const cors     = require('cors');
+const http     = require('http');
+const { Server } = require('socket.io');
 const { connectDB } = require('./db');
 
 // ── Route imports ──────────────────────────────────────
@@ -25,20 +29,41 @@ const productRoutes = require('./routes/products');
 const orderRoutes   = require('./routes/orders');
 const userRoutes    = require('./routes/users');
 const adminRoutes   = require('./routes/admin');
+const paymentRoutes = require('./routes/payment');
 
-const app = express();
+const app    = express();
+const server = http.createServer(app);  // wrap Express in http.Server for Socket.IO
 
 // ── CORS ───────────────────────────────────────────────
-// Add more origins here when deploying
-const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:3001',
-    process.env.FRONTEND_URL,
-  ].filter(Boolean),
-  credentials: true,
-};
-app.use(cors(corsOptions));
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL_VERCEL,
+].filter(Boolean);
+
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+// ── Socket.IO ──────────────────────────────────────────
+const io = new Server(server, {
+  cors: { origin: allowedOrigins, methods: ['GET','POST'], credentials: true },
+  transports: ['websocket','polling'],
+  pingTimeout: 30000,
+  pingInterval: 10000,
+});
+
+// Make `io` available to route handlers via app.locals
+app.locals.io = io;
+
+io.on('connection', (socket) => {
+  // Client emits { userId, role } to join the right rooms
+  socket.on('join', ({ userId, role }) => {
+    if (role === 'admin') socket.join('admin');
+    if (userId)           socket.join(String(userId));
+  });
+
+  socket.on('disconnect', () => {});
+});
 
 // ── Body parsers ───────────────────────────────────────
 app.use(express.json());
@@ -50,14 +75,14 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders',   orderRoutes);
 app.use('/api/users',    userRoutes);
 app.use('/api/admin',    adminRoutes);
+app.use('/api/payment',  paymentRoutes);
 
 // ── Health check ───────────────────────────────────────
 app.get('/api/health', (_req, res) =>
-  res.json({ status: 'OK', message: 'Freshly API v3 — MongoDB native driver' })
+  res.json({ status: 'OK', message: 'Freshly API — Socket.IO enabled' })
 );
 
 // ── Global error handler ───────────────────────────────
-// TO CUSTOMISE ERROR RESPONSES: edit this middleware
 app.use((err, _req, res, _next) => {
   console.error('Unhandled error:', err.stack);
   res.status(500).json({ message: 'Internal server error', error: err.message });
@@ -68,8 +93,8 @@ const PORT = process.env.PORT || 5000;
 
 connectDB()
   .then(() => {
-    app.listen(PORT, () =>
-      console.log(`🚀 Freshly API running on port ${PORT}  [${process.env.NODE_ENV || 'development'}]`)
+    server.listen(PORT, () =>
+      console.log(`🚀 Freshly API + Socket.IO on port ${PORT}  [${process.env.NODE_ENV || 'development'}]`)
     );
   })
   .catch(err => {
@@ -77,4 +102,4 @@ connectDB()
     process.exit(1);
   });
 
-module.exports = app;
+module.exports = { app, io };

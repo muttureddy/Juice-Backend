@@ -40,6 +40,7 @@
  */
 
 const express = require('express');
+const { logAction } = require('../middleware/auditLog');
 const router  = express.Router();
 const { getDB, toObjectId } = require('../db');
 const { adminAuth } = require('../middleware/auth');
@@ -180,6 +181,9 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
       setFields.paymentStatus = 'paid';
     }
 
+    // Fetch old status for audit log
+    const existingOrder = await db.collection('orders').findOne({ _id }, { projection: { orderStatus: 1 } });
+
     const result = await db.collection('orders').findOneAndUpdate(
       { _id },
       {
@@ -190,6 +194,21 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
     );
 
     if (!result) return res.status(404).json({ message: 'Order not found' });
+
+    // Audit log
+    await logAction(req.user, 'order_status', 'Order', req.params.id,
+      { from: existingOrder?.orderStatus, to: status }, req);
+
+    // ── Socket.IO: push status update to the customer ──
+    const io = req.app.locals.io;
+    if (io && result.userId) {
+      io.to(String(result.userId)).emit('order_status', {
+        status,
+        orderId: req.params.id,
+        message: `Your order is now: ${status.replace(/_/g, ' ')}`,
+      });
+    }
+
     res.json({ message: `Status → ${status}`, order: result });
   } catch (err) {
     res.status(500).json({ message: 'Failed to update order status' });
@@ -274,6 +293,7 @@ router.patch('/users/:id/role', adminAuth, async (req, res) => {
     );
 
     if (!user) return res.status(404).json({ message: 'User not found' });
+    await logAction(req.user, 'role_changed', 'User', req.params.id, { newRole: role }, req);
     res.json({ message: `Role updated to ${role}`, user });
   } catch (err) {
     res.status(500).json({ message: 'Failed to update role' });
@@ -299,6 +319,7 @@ router.delete('/users/:id', adminAuth, async (req, res) => {
     if (userDel.deletedCount === 0)
       return res.status(404).json({ message: 'User not found' });
 
+    await logAction(req.user, 'user_deleted', 'User', req.params.id, {}, req);
     res.json({
       message: 'User and their orders deleted',
       ordersDeleted: ordersDel.deletedCount,
@@ -387,6 +408,80 @@ router.post('/setup', async (req, res) => {
     res.json({ message: 'Admin account ready', phone: result.phone });
   } catch (err) {
     res.status(500).json({ message: 'Setup failed', error: err.message });
+  }
+});
+
+// ══ 6. AUDIT LOGS ══════════════════════════════════════
+
+router.get('/audit-logs', adminAuth, async (req, res) => {
+  try {
+    const { action, entity, page = 1, limit = 50 } = req.query;
+    const db    = getDB();
+    const query = {};
+    if (action && action !== 'all') query.action     = action;
+    if (entity && entity !== 'All Entities') query.entityType = entity;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const [logs, total] = await Promise.all([
+      db.collection('auditLogs')
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .toArray(),
+      db.collection('auditLogs').countDocuments(query),
+    ]);
+
+    res.json({ logs, total, pages: Math.ceil(total / parseInt(limit)) });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch audit logs', error: err.message });
+  }
+});
+
+// ══ 7. PAYMENTS LISTING ═════════════════════════════════
+
+router.get('/payments', adminAuth, async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status, method } = req.query;
+    const db    = getDB();
+    const query = {};
+    if (status) query.paymentStatus = status;
+    if (method) query.paymentMethod = method;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const [payments, total] = await Promise.all([
+      db.collection('orders').find(query, {
+        projection: {
+          orderId: 1, total: 1, paymentMethod: 1, paymentStatus: 1,
+          orderStatus: 1, createdAt: 1,
+          'customerDetails.name': 1, 'customerDetails.phone': 1,
+        }
+      }).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).toArray(),
+      db.collection('orders').countDocuments(query),
+    ]);
+
+    // Summary stats
+    const [totalRevenue, pendingCount, paidCount] = await Promise.all([
+      db.collection('orders').aggregate([
+        { $match: { paymentStatus: 'paid' } },
+        { $group: { _id: null, total: { $sum: '$total' } } }
+      ]).toArray(),
+      db.collection('orders').countDocuments({ paymentStatus: 'pending' }),
+      db.collection('orders').countDocuments({ paymentStatus: 'paid' }),
+    ]);
+
+    res.json({
+      payments,
+      total,
+      pages: Math.ceil(total / parseInt(limit)),
+      stats: {
+        totalRevenue: totalRevenue[0]?.total || 0,
+        pendingCount,
+        paidCount,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch payments', error: err.message });
   }
 });
 

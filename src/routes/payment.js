@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getDB, ObjectId } = require('../db/connection');
+const { getDB, ObjectId } = require('../db');
 const { auth } = require('../middleware/auth');
 
 let stripe = null;

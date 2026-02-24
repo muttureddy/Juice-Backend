@@ -35,14 +35,14 @@ const connectDB = async () => {
   // To ADD a new index: just add another createIndex() call.
   // To REMOVE:  drop it manually in mongo shell or Compass.
   await db.collection('users').createIndex({ phone: 1 }, { unique: true });
-  await db.collection('products').createIndex({ category: 1 });
-  await db.collection('products').createIndex({ isBestseller: 1 });
-  await db.collection('products').createIndex({ isFeatured: 1 });
-  await db.collection('products').createIndex({ isAvailable: 1 });
-  await db.collection('products').createIndex(
-    { name: 'text', description: 'text', 'ingredients': 'text' },
-    { name: 'product_text_search' }
-  );
+  // await db.collection('products').createIndex({ category: 1 });
+  // await db.collection('products').createIndex({ isBestseller: 1 });
+  // await db.collection('products').createIndex({ isFeatured: 1 });
+  // await db.collection('products').createIndex({ isAvailable: 1 });
+  // await db.collection('products').createIndex(
+  //   { name: 'text', description: 'text', 'ingredients': 'text' },
+  //   { name: 'product_text_search' }
+  // );
 
   await db.collection('orders').createIndex({ userId: 1 });
   await db.collection('orders').createIndex({ orderId: 1 }, { unique: true, sparse: true });
