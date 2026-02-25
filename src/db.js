@@ -1,18 +1,13 @@
 /**
  * db.js
  * ─────────────────────────────────────────────────────
- * PURPOSE: Manages the single MongoDB native-driver
- *          connection used across all route files.
+ * PURPOSE: MongoDB native-driver connection + index setup.
  *
- * EXPORTS:
- *   connectDB()  - Call once at startup (in server.js).
- *                  Connects, creates indexes, returns db.
- *   getDB()      - Call inside any route to get the db.
- *   toObjectId() - Safely convert a string to ObjectId.
- *   ObjectId     - Re-exported for convenience.
- *
- * TO CHANGE DB NAME / URI:  edit .env variables
- *   MONGODB_URI and DB_NAME
+ * CHANGES:
+ *   - Enabled all commented-out product indexes (category, flags, text search)
+ *   - Added compound index on (isAvailable + category) for filtered product listing
+ *   - Added TTL index on auditLogs.createdAt (90-day auto-expiry)
+ *   - Added index on auditLogs for filtering by action/entityType
  * ─────────────────────────────────────────────────────
  */
 
@@ -30,26 +25,56 @@ const connectDB = async () => {
   await client.connect();
   db = client.db(process.env.DB_NAME || 'freshly_db');
 
-  // ── Index definitions ──────────────────────────────
-  // Adding an index here is safe (MongoDB ignores duplicates).
-  // To ADD a new index: just add another createIndex() call.
-  // To REMOVE:  drop it manually in mongo shell or Compass.
+  // ── Users indexes ──────────────────────────────────
   await db.collection('users').createIndex({ phone: 1 }, { unique: true });
-  // await db.collection('products').createIndex({ category: 1 });
-  // await db.collection('products').createIndex({ isBestseller: 1 });
-  // await db.collection('products').createIndex({ isFeatured: 1 });
-  // await db.collection('products').createIndex({ isAvailable: 1 });
-  // await db.collection('products').createIndex(
-  //   { name: 'text', description: 'text', 'ingredients': 'text' },
-  //   { name: 'product_text_search' }
-  // );
 
+  // ── Products indexes ───────────────────────────────
+  // Single-field indexes for common filters
+  await db.collection('products').createIndex({ category: 1 });
+  await db.collection('products').createIndex({ isAvailable: 1 });
+  await db.collection('products').createIndex({ isBestseller: 1 });
+  await db.collection('products').createIndex({ isFeatured: 1 });
+  await db.collection('products').createIndex({ createdAt: -1 });
+
+  // Compound: availability + category (most common query shape)
+  await db.collection('products').createIndex({ isAvailable: 1, category: 1 });
+
+  // Compound: availability + bestseller (homepage featured fetch)
+  await db.collection('products').createIndex({ isAvailable: 1, isBestseller: -1 });
+
+  // Full-text search on name, description, tags
+  // Drop first if it exists with different weights/fields — prevents startup crash
+  // when the old index has different options (e.g. different weights or fields).
+  try {
+    await db.collection('products').dropIndex('product_text_search');
+  } catch (_) {
+    // Index didn't exist yet — that's fine, ignore the error
+  }
+  await db.collection('products').createIndex(
+    { name: 'text', description: 'text', tags: 'text' },
+    { name: 'product_text_search', weights: { name: 10, tags: 5, description: 1 } }
+  );
+
+  // ── Orders indexes ─────────────────────────────────
   await db.collection('orders').createIndex({ userId: 1 });
   await db.collection('orders').createIndex({ orderId: 1 }, { unique: true, sparse: true });
   await db.collection('orders').createIndex({ createdAt: -1 });
   await db.collection('orders').createIndex({ orderStatus: 1 });
+  // Compound for admin order list (status filter + date sort)
+  await db.collection('orders').createIndex({ orderStatus: 1, createdAt: -1 });
 
-  console.log(`✅ MongoDB connected  →  database: "${db.databaseName}"`);
+  // ── AuditLogs indexes ──────────────────────────────
+  // TTL: auto-delete logs older than 90 days
+  await db.collection('auditLogs').createIndex(
+    { createdAt: 1 },
+    { expireAfterSeconds: 90 * 24 * 60 * 60, name: 'auditLogs_ttl_90d' }
+  );
+  // For filter/search in AdminAuditLogs page
+  await db.collection('auditLogs').createIndex({ action: 1 });
+  await db.collection('auditLogs').createIndex({ entityType: 1 });
+  await db.collection('auditLogs').createIndex({ userPhone: 1 });
+
+  console.log(`✅ MongoDB connected  →  database: "${db.databaseName}" | indexes ensured`);
   return db;
 };
 
@@ -60,16 +85,11 @@ const getDB = () => {
 
 /**
  * toObjectId(id)
- * Converts a string to MongoDB ObjectId.
- * Returns null if the string is invalid so routes can
- * handle the 404 gracefully instead of crashing.
+ * Safely converts a string to MongoDB ObjectId.
+ * Returns null on invalid input so routes handle 404 gracefully.
  */
 const toObjectId = (id) => {
-  try {
-    return new ObjectId(id);
-  } catch {
-    return null;
-  }
+  try { return new ObjectId(id); } catch { return null; }
 };
 
 module.exports = { connectDB, getDB, toObjectId, ObjectId };

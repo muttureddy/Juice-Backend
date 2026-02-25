@@ -43,7 +43,7 @@ const express = require('express');
 const { logAction } = require('../middleware/auditLog');
 const router  = express.Router();
 const { getDB, toObjectId } = require('../db');
-const { adminAuth } = require('../middleware/auth');
+const { adminAuth, invalidateUserCache } = require('../middleware/auth');
 
 const VALID_STATUSES = [
   'pending','confirmed','preparing',
@@ -293,6 +293,8 @@ router.patch('/users/:id/role', adminAuth, async (req, res) => {
     );
 
     if (!user) return res.status(404).json({ message: 'User not found' });
+    // Bust cache so updated role takes effect on next request
+    invalidateUserCache(req.params.id);
     await logAction(req.user, 'role_changed', 'User', req.params.id, { newRole: role }, req);
     res.json({ message: `Role updated to ${role}`, user });
   } catch (err) {
@@ -318,6 +320,9 @@ router.delete('/users/:id', adminAuth, async (req, res) => {
 
     if (userDel.deletedCount === 0)
       return res.status(404).json({ message: 'User not found' });
+
+    // Bust auth cache so deleted user can't continue using their token
+    invalidateUserCache(req.params.id);
 
     await logAction(req.user, 'user_deleted', 'User', req.params.id, {}, req);
     res.json({

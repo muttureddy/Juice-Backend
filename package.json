@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Freshly Juice & Salad Backend API — MongoDB Native Driver + Socket.IO",
+  "description": "Freshly Juice & Salad Backend API \u2014 MongoDB Native Driver + Socket.IO + In-memory auth cache + Rate limiting",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",

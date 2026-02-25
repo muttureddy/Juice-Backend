@@ -22,6 +22,11 @@ const router  = express.Router();
 const jwt     = require('jsonwebtoken');
 const { getDB } = require('../db');
 const { logAction } = require('../middleware/auditLog');
+const { createRateLimiter } = require('../middleware/rateLimiter');
+
+// Rate limiters: 5 sends per 10 min, 3 resends per 10 min per IP
+const otpSendLimiter   = createRateLimiter({ windowMs: 10*60*1000, max: 5, message: 'Too many OTP requests. Please wait 10 minutes.' });
+const otpResendLimiter = createRateLimiter({ windowMs: 10*60*1000, max: 3, message: 'Too many resend attempts. Please wait 10 minutes.' });
 
 const JWT_SECRET = process.env.JWT_SECRET || 'freshly_jwt_secret_change_in_prod';
 
@@ -44,7 +49,7 @@ const generateOTP = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
 
 // ── POST /send-otp ─────────────────────────────────────
-router.post('/send-otp', async (req, res) => {
+router.post('/send-otp', otpSendLimiter, async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ message: 'Phone number is required' });
@@ -153,7 +158,7 @@ router.post('/verify-otp', async (req, res) => {
 });
 
 // ── POST /resend-otp ───────────────────────────────────
-router.post('/resend-otp', async (req, res) => {
+router.post('/resend-otp', otpResendLimiter, async (req, res) => {
   try {
     const { phone } = req.body;
     if (!phone) return res.status(400).json({ message: 'Phone is required' });

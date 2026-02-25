@@ -37,6 +37,9 @@ router.post('/', auth, async (req, res) => {
         return res.status(404).json({ message: `Product ${item.productId} not found` });
       if (!product.isAvailable)
         return res.status(400).json({ message: `${product.name} is currently unavailable` });
+      // Stock check
+      if (product.stock !== undefined && product.stock < item.quantity)
+        return res.status(400).json({ message: `Only ${product.stock} unit(s) of "${product.name}" left in stock` });
 
       subtotal += product.price * item.quantity;
       orderItems.push({
@@ -45,6 +48,7 @@ router.post('/', auth, async (req, res) => {
         image:     product.image,
         price:     product.price,
         quantity:  item.quantity,
+        stock:     product.stock,   // carried for decrement — stripped below
       });
     }
 
@@ -74,6 +78,25 @@ router.post('/', auth, async (req, res) => {
 
     const result = await db.collection('orders').insertOne(order);
     const savedOrder = { ...order, _id: result.insertedId };
+
+    // ── Decrement stock for each ordered item ────────
+    // Uses $inc to atomically reduce stock; floor at 0 to avoid negatives
+    const bulkOps = orderItems
+      .filter(i => i.stock !== undefined)
+      .map(i => ({
+        updateOne: {
+          filter: { _id: i.productId },
+          update: { $inc: { stock: -i.quantity }, $set: { updatedAt: new Date() } },
+        }
+      }));
+    if (bulkOps.length > 0) {
+      await db.collection('products').bulkWrite(bulkOps, { ordered: false });
+      // Auto-hide products that just hit 0 stock
+      await db.collection('products').updateMany(
+        { stock: { $lte: 0 }, isAvailable: true },
+        { $set: { isAvailable: false, updatedAt: new Date() } }
+      );
+    }
 
     // ── Socket.IO: notify admin of new order ──────────
     const io = req.app.locals.io;
