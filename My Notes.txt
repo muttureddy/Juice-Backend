@@ -1,0 +1,6 @@
+Here notifications are working fine,
+
+read more on particular product
+---- yet to make it better.
+
+working fine as of now, no payment pages.

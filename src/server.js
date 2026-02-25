@@ -8,7 +8,6 @@
  *
  * Events emitted TO clients:
  *   new_order          → "admin" room
- *   payment_received   → "admin" room
  *   low_stock          → "admin" room
  *   new_user           → "admin" room
  *   order_status       → userId room (specific customer)
@@ -29,7 +28,6 @@ const productRoutes = require('./routes/products');
 const orderRoutes   = require('./routes/orders');
 const userRoutes    = require('./routes/users');
 const adminRoutes   = require('./routes/admin');
-const paymentRoutes = require('./routes/payment');
 
 const app    = express();
 const server = http.createServer(app);  // wrap Express in http.Server for Socket.IO
@@ -76,7 +74,6 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders',   orderRoutes);
 app.use('/api/users',    userRoutes);
 app.use('/api/admin',    adminRoutes);
-app.use('/api/payment',  paymentRoutes);
 
 // ── Health check ───────────────────────────────────────
 app.get('/api/health', (_req, res) =>

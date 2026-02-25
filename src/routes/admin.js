@@ -202,11 +202,20 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
     // ── Socket.IO: push status update to the customer ──
     const io = req.app.locals.io;
     if (io && result.userId) {
+      // Emit order_status to user
       io.to(String(result.userId)).emit('order_status', {
         status,
         orderId: req.params.id,
         message: `Your order is now: ${status.replace(/_/g, ' ')}`,
       });
+
+      // If cancelled, also emit order_cancelled event
+      if (status === 'cancelled') {
+        io.to(String(result.userId)).emit('order_cancelled', {
+          message: 'Your order has been cancelled',
+          orderId: req.params.id,
+        });
+      }
     }
 
     res.json({ message: `Status → ${status}`, order: result });
@@ -383,6 +392,17 @@ router.patch('/inventory/:id', adminAuth, async (req, res) => {
     );
 
     if (!result) return res.status(404).json({ message: 'Product not found' });
+
+    // ── Socket.IO: emit low stock warning if stock <= 5 ──
+    const io = req.app.locals.io;
+    if (io && result.stock !== undefined && result.stock <= 5) {
+      io.to('admin').emit('low_stock', {
+        message: `${result.name} — only ${result.stock} unit${result.stock !== 1 ? 's' : ''} left`,
+        productId: result._id,
+        stock: result.stock,
+      });
+    }
+
     res.json({ message: 'Inventory updated', product: result });
   } catch (err) {
     res.status(500).json({ message: 'Failed to update inventory' });
