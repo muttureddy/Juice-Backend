@@ -36,7 +36,7 @@ const server = http.createServer(app);  // wrap Express in http.Server for Socke
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
-  https://juicetailwind.vercel.app,
+  'https://juicetailwind.vercel.app',
   process.env.FRONTEND_URL,
   process.env.FRONTEND_URL_VERCEL,
 process.env.FRONTEND_URL_VERCEL2
