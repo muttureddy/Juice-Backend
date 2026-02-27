@@ -45,10 +45,15 @@ app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 // ── Socket.IO ──────────────────────────────────────────
 const io = new Server(server, {
-  cors: { origin: allowedOrigins, methods: ['GET','POST'], credentials: true },
+  cors: { 
+    origin: allowedOrigins, 
+    methods: ['GET','POST'], 
+    credentials: true,
+  },
   transports: ['websocket','polling'],
-  pingTimeout: 30000,
-  pingInterval: 10000,
+  pingTimeout: 60000,   // Increased for Render (60 seconds)
+  pingInterval: 25000,  // Increased for Render (25 seconds)
+  allowEIO3: true,      // Better compatibility
 });
 
 // Make `io` available to route handlers via app.locals
