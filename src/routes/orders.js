@@ -1,7 +1,6 @@
 /**
  * routes/orders.js
  * Customer order placement and tracking.
- * Emits Socket.IO events on new orders and cancellations.
  */
 
 const express = require('express');
@@ -98,16 +97,6 @@ router.post('/', auth, async (req, res) => {
       );
     }
 
-    // ── Socket.IO: notify admin of new order ──────────
-    const io = req.app.locals.io;
-    if (io) {
-      io.to('admin').emit('new_order', {
-        message: `New order from ${customerDetails?.name || 'customer'} — ₹${total}`,
-        orderId: savedOrder._id,
-        total,
-      });
-    }
-
     res.status(201).json({ message: 'Order placed successfully!', order: savedOrder });
   } catch (err) {
     console.error('Create order error:', err);
@@ -177,15 +166,6 @@ router.patch('/:id/cancel', auth, async (req, res) => {
       { $set: { orderStatus: 'cancelled', updatedAt: now }, $push: { statusHistory: newStatus } },
       { returnDocument: 'after' }
     );
-
-    // ── Socket.IO: notify admin of cancellation ──────
-    const io = req.app.locals.io;
-    if (io) {
-      io.to('admin').emit('order_cancelled', {
-        message: `Order #${order.orderId} cancelled by customer`,
-        orderId: _id,
-      });
-    }
 
     res.json({ message: 'Order cancelled', order: result });
   } catch (err) {

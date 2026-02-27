@@ -130,18 +130,6 @@ router.post('/verify-otp', async (req, res) => {
 
     await logAction(user, 'login', 'Auth', user._id, {}, req);
 
-    // ── Socket.IO: notify admin when a new user registers ──
-    const isNewUser = !user.name;
-    if (isNewUser) {
-      const io = req.app.locals.io;
-      if (io) {
-        io.to('admin').emit('new_user', {
-          message: `New user registered: ${phone}`,
-          phone,
-        });
-      }
-    }
-
     res.json({
       message: 'Login successful',
       token,
