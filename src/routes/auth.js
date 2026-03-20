@@ -1,5 +1,5 @@
 /**
- * routes/auth.js
+ * routes/auth.js  —  ProteinSpot
  * ─────────────────────────────────────────────────────
  * PURPOSE: Phone-OTP authentication.
  *
@@ -12,25 +12,26 @@
  *   { otp: { code, expiresAt } }
  *   Cleared on successful verify.
  *
- * DEV MODE: When NODE_ENV=development, OTP is returned
- *   in the API response as `devOtp` (no Twilio needed).
+ * DEV MODE: When NODE_ENV !== 'production', OTP is also
+ *   returned in the response as `devOtp` (no Twilio needed).
  * ─────────────────────────────────────────────────────
  */
 
 const express = require('express');
 const router  = express.Router();
 const jwt     = require('jsonwebtoken');
-const { getDB } = require('../db');
-const { logAction } = require('../middleware/auditLog');
+const { getDB }       = require('../db');
+const { logAction }   = require('../middleware/auditLog');
 const { createRateLimiter } = require('../middleware/rateLimiter');
 
-// Rate limiters: 5 sends per 10 min, 3 resends per 10 min per IP
-const otpSendLimiter   = createRateLimiter({ windowMs: 10*60*1000, max: 5, message: 'Too many OTP requests. Please wait 10 minutes.' });
-const otpResendLimiter = createRateLimiter({ windowMs: 10*60*1000, max: 3, message: 'Too many resend attempts. Please wait 10 minutes.' });
+// Rate limiters
+const otpSendLimiter   = createRateLimiter({ windowMs: 10*60*1000, max: 5,  message: 'Too many OTP requests. Please wait 10 minutes.'    });
+const otpResendLimiter = createRateLimiter({ windowMs: 10*60*1000, max: 3,  message: 'Too many resend attempts. Please wait 10 minutes.' });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'freshly_jwt_secret_change_in_prod';
+const JWT_SECRET = process.env.JWT_SECRET || 'PROTEINSPOT_jwt_secret_change_in_prod';
 
 // ── Twilio (optional) ──────────────────────────────────
+// NOTE: env key is TWILIO_ACCOUNT_SID (was TWILIO_ACCOUNT_SD — typo fixed in .env)
 let twilioClient = null;
 try {
   if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
@@ -55,32 +56,28 @@ router.post('/send-otp', otpSendLimiter, async (req, res) => {
     if (!phone) return res.status(400).json({ message: 'Phone number is required' });
 
     const phoneRegex = /^[+]?[\d\s\-(]{10,15}$/;
-    if (!phoneRegex.test(phone.replace(/\s/g, ''))) {
+    if (!phoneRegex.test(phone.replace(/\s/g, '')))
       return res.status(400).json({ message: 'Invalid phone number format' });
-    }
 
     const otp       = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 min
     const db        = getDB();
 
     // Upsert: create user record if first time
     await db.collection('users').updateOne(
       { phone },
       {
-        $set: { otp: { code: otp, expiresAt }, updatedAt: new Date() },
-        $setOnInsert: {
-          phone, role: 'user', isVerified: false, createdAt: new Date()
-        }
+        $set:         { otp: { code: otp, expiresAt }, updatedAt: new Date() },
+        $setOnInsert: { phone, role: 'user', isVerified: false, createdAt: new Date() },
       },
       { upsert: true }
     );
 
-    // Send SMS or log
     if (twilioClient) {
       await twilioClient.messages.create({
-        body: `Your Freshly OTP is: ${otp}. Valid for 10 minutes. Do not share.`,
+        body: `Your ProteinSpot OTP is: ${otp}. Valid for 10 minutes. Do not share.`,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: phone,
+        to:   phone,
       });
     } else {
       console.log(`📱 [DEV OTP] ${phone} → ${otp}`);
@@ -134,9 +131,13 @@ router.post('/verify-otp', async (req, res) => {
       message: 'Login successful',
       token,
       user: {
-        id: user._id, phone: user.phone, name: user.name,
-        email: user.email, address: user.address,
-        role: user.role, isNewUser: !user.name,
+        id:        user._id,
+        phone:     user.phone,
+        name:      user.name,
+        email:     user.email,
+        address:   user.address,
+        role:      user.role,
+        isNewUser: !user.name,
       },
     });
   } catch (err) {
@@ -158,17 +159,17 @@ router.post('/resend-otp', otpResendLimiter, async (req, res) => {
     await db.collection('users').updateOne(
       { phone },
       {
-        $set: { otp: { code: otp, expiresAt }, updatedAt: new Date() },
-        $setOnInsert: { phone, role: 'user', isVerified: false, createdAt: new Date() }
+        $set:         { otp: { code: otp, expiresAt }, updatedAt: new Date() },
+        $setOnInsert: { phone, role: 'user', isVerified: false, createdAt: new Date() },
       },
       { upsert: true }
     );
 
     if (twilioClient) {
       await twilioClient.messages.create({
-        body: `Your Freshly OTP is: ${otp}. Valid for 10 minutes.`,
+        body: `Your ProteinSpot OTP is: ${otp}. Valid for 10 minutes.`,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: phone,
+        to:   phone,
       });
     } else {
       console.log(`📱 [DEV OTP resend] ${phone} → ${otp}`);

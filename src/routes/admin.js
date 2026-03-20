@@ -1,53 +1,29 @@
 /**
- * routes/admin.js
+ * routes/admin.js  —  ProteinSpot
  * ─────────────────────────────────────────────────────
  * PURPOSE: All admin-only endpoints.
- *
- * All routes require  adminAuth  (JWT with role === 'admin').
+ * All routes require adminAuth (JWT with role === 'admin').
  *
  * SECTIONS:
- *
- * 1. DASHBOARD
- *    GET  /api/admin/dashboard
- *       Returns stats (orders, users, revenue) + recent orders.
- *       TO ADD A NEW STAT: add another countDocuments() / aggregate()
- *       call inside the Promise.all() and include it in the response.
- *
- * 2. ORDERS
- *    GET   /api/admin/orders         – paginated list w/ filters
- *    GET   /api/admin/orders/:id     – single order detail
- *    PATCH /api/admin/orders/:id/status  – update order status
- *
- *    STATUS FLOW (change in validStatuses if you need more):
- *      pending → confirmed → preparing → shipped
- *      → out_for_delivery → delivered  |  cancelled
- *
- * 3. USERS
- *    GET    /api/admin/users         – all users (paginated)
- *    GET    /api/admin/users/:id     – single user + order history
- *    PATCH  /api/admin/users/:id/role – promote/demote (user ↔ admin)
- *    DELETE /api/admin/users/:id     – delete user (and their orders)
- *
- * 4. PRODUCTS (Admin add / edit / delete via products route,
- *              but inventory summary lives here)
- *    GET  /api/admin/inventory       – stock levels for all products
- *    PATCH /api/admin/inventory/:id  – update stock + availability
- *
- * 5. SETUP
- *    POST /api/admin/setup           – promote a phone number to admin
- *                                      requires secretKey in body
+ *   1. DASHBOARD   GET  /api/admin/dashboard
+ *   2. ORDERS      GET/PATCH /api/admin/orders
+ *   3. USERS       GET/PATCH/DELETE /api/admin/users
+ *   4. INVENTORY   GET/PATCH /api/admin/inventory
+ *   5. AUDIT LOGS  GET  /api/admin/audit-logs
+ *   6. PAYMENTS    GET  /api/admin/payments
+ *   7. SETUP       POST /api/admin/setup
  * ─────────────────────────────────────────────────────
  */
 
 const express = require('express');
-const { logAction } = require('../middleware/auditLog');
 const router  = express.Router();
-const { getDB, toObjectId } = require('../db');
+const { getDB, toObjectId }          = require('../db');
 const { adminAuth, invalidateUserCache } = require('../middleware/auth');
+const { logAction }                  = require('../middleware/auditLog');
 
 const VALID_STATUSES = [
-  'pending','confirmed','preparing',
-  'shipped','out_for_delivery','delivered','cancelled'
+  'pending', 'confirmed', 'preparing',
+  'shipped', 'out_for_delivery', 'delivered', 'cancelled',
 ];
 
 // ══ 1. DASHBOARD ══════════════════════════════════════
@@ -55,46 +31,39 @@ const VALID_STATUSES = [
 router.get('/dashboard', adminAuth, async (req, res) => {
   try {
     const db    = getDB();
-    const today = new Date(); today.setHours(0,0,0,0);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
     const tom   = new Date(today); tom.setDate(tom.getDate() + 1);
 
     const [
       totalOrders, todayOrders, totalUsers, totalProducts,
-      revenueResult, ordersByStatus, recentOrders, lowStockCount
+      revenueResult, ordersByStatus, recentOrders, lowStockCount,
     ] = await Promise.all([
       db.collection('orders').countDocuments(),
       db.collection('orders').countDocuments({ createdAt: { $gte: today, $lt: tom } }),
       db.collection('users').countDocuments({ role: 'user' }),
       db.collection('products').countDocuments({ isAvailable: true }),
 
-      // Revenue: sum of non-cancelled orders
       db.collection('orders').aggregate([
         { $match: { orderStatus: { $ne: 'cancelled' } } },
-        { $group: { _id: null, total: { $sum: '$total' } } }
+        { $group: { _id: null, total: { $sum: '$total' } } },
       ]).toArray(),
 
-      // Order count grouped by status
       db.collection('orders').aggregate([
-        { $group: { _id: '$orderStatus', count: { $sum: 1 } } }
+        { $group: { _id: '$orderStatus', count: { $sum: 1 } } },
       ]).toArray(),
 
-      // 5 most recent orders with user info
       db.collection('orders').aggregate([
         { $sort: { createdAt: -1 } },
         { $limit: 5 },
-        { $lookup: {
-            from: 'users', localField: 'userId',
-            foreignField: '_id', as: 'user'
-        }},
+        { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },
         { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
         { $project: {
-            orderId:1, total:1, orderStatus:1, createdAt:1,
-            'customerDetails.name':1, 'customerDetails.phone':1,
-            'user.name':1, 'user.phone':1
-        }}
+          orderId: 1, total: 1, orderStatus: 1, createdAt: 1,
+          'customerDetails.name': 1, 'customerDetails.phone': 1,
+          'user.name': 1, 'user.phone': 1,
+        }},
       ]).toArray(),
 
-      // Products with stock < 10
       db.collection('products').countDocuments({ stock: { $lt: 10 } }),
     ]);
 
@@ -123,20 +92,15 @@ router.get('/orders', adminAuth, async (req, res) => {
     if (status && status !== 'all') query.orderStatus = status;
     if (search) {
       query.$or = [
-        { orderId: { $regex: search, $options: 'i' } },
+        { orderId:                  { $regex: search, $options: 'i' } },
         { 'customerDetails.name':  { $regex: search, $options: 'i' } },
         { 'customerDetails.phone': { $regex: search, $options: 'i' } },
       ];
     }
 
-    const skip  = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
     const [orders, total] = await Promise.all([
-      db.collection('orders')
-        .find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit))
-        .toArray(),
+      db.collection('orders').find(query).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).toArray(),
       db.collection('orders').countDocuments(query),
     ]);
 
@@ -150,13 +114,9 @@ router.get('/orders/:id', adminAuth, async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
     const db  = getDB();
-
-    // Try both _id and orderId string
     const order = await db.collection('orders').findOne(
-      _id ? { $or: [{ _id }, { orderId: req.params.id }] }
-           : { orderId: req.params.id }
+      _id ? { $or: [{ _id }, { orderId: req.params.id }] } : { orderId: req.params.id }
     );
-
     if (!order) return res.status(404).json({ message: 'Order not found' });
     res.json(order);
   } catch (err) {
@@ -181,13 +141,12 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
       setFields.paymentStatus = 'paid';
     }
 
-    // Fetch old status for audit log
-    const existingOrder = await db.collection('orders').findOne({ _id }, { projection: { orderStatus: 1 } });
+    const existing = await db.collection('orders').findOne({ _id }, { projection: { orderStatus: 1 } });
 
     const result = await db.collection('orders').findOneAndUpdate(
       { _id },
       {
-        $set: setFields,
+        $set:  setFields,
         $push: { statusHistory: { status, note: note || `Updated to ${status}`, timestamp: now } },
       },
       { returnDocument: 'after' }
@@ -195,9 +154,8 @@ router.patch('/orders/:id/status', adminAuth, async (req, res) => {
 
     if (!result) return res.status(404).json({ message: 'Order not found' });
 
-    // Audit log
     await logAction(req.user, 'order_status', 'Order', req.params.id,
-      { from: existingOrder?.orderStatus, to: status }, req);
+      { from: existing?.orderStatus, to: status }, req);
 
     res.json({ message: `Status → ${status}`, order: result });
   } catch (err) {
@@ -224,12 +182,7 @@ router.get('/users', adminAuth, async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [users, total] = await Promise.all([
-      db.collection('users')
-        .find(query, { projection: { otp: 0 } })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit))
-        .toArray(),
+      db.collection('users').find(query, { projection: { otp: 0 } }).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).toArray(),
       db.collection('users').countDocuments(query),
     ]);
 
@@ -245,17 +198,14 @@ router.get('/users/:id', adminAuth, async (req, res) => {
     if (!_id) return res.status(400).json({ message: 'Invalid user ID' });
 
     const db   = getDB();
-    const user = await db.collection('users').findOne(
-      { _id }, { projection: { otp: 0 } }
-    );
+    const user = await db.collection('users').findOne({ _id }, { projection: { otp: 0 } });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Fetch order count and total spend
     const [orderCount, spendResult] = await Promise.all([
       db.collection('orders').countDocuments({ userId: _id }),
       db.collection('orders').aggregate([
         { $match: { userId: _id, orderStatus: { $ne: 'cancelled' } } },
-        { $group: { _id: null, total: { $sum: '$total' } } }
+        { $group: { _id: null, total: { $sum: '$total' } } },
       ]).toArray(),
     ]);
 
@@ -265,7 +215,6 @@ router.get('/users/:id', adminAuth, async (req, res) => {
   }
 });
 
-// Change role: 'user' ↔ 'admin'
 router.patch('/users/:id/role', adminAuth, async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
@@ -283,7 +232,6 @@ router.patch('/users/:id/role', adminAuth, async (req, res) => {
     );
 
     if (!user) return res.status(404).json({ message: 'User not found' });
-    // Bust cache so updated role takes effect on next request
     invalidateUserCache(req.params.id);
     await logAction(req.user, 'role_changed', 'User', req.params.id, { newRole: role }, req);
     res.json({ message: `Role updated to ${role}`, user });
@@ -292,13 +240,11 @@ router.patch('/users/:id/role', adminAuth, async (req, res) => {
   }
 });
 
-// Delete user + their orders
 router.delete('/users/:id', adminAuth, async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
     if (!_id) return res.status(400).json({ message: 'Invalid user ID' });
 
-    // Prevent admin from deleting themselves
     if (_id.toString() === req.user._id.toString())
       return res.status(400).json({ message: 'Cannot delete your own account' });
 
@@ -311,14 +257,9 @@ router.delete('/users/:id', adminAuth, async (req, res) => {
     if (userDel.deletedCount === 0)
       return res.status(404).json({ message: 'User not found' });
 
-    // Bust auth cache so deleted user can't continue using their token
     invalidateUserCache(req.params.id);
-
     await logAction(req.user, 'user_deleted', 'User', req.params.id, {}, req);
-    res.json({
-      message: 'User and their orders deleted',
-      ordersDeleted: ordersDel.deletedCount,
-    });
+    res.json({ message: 'User and their orders deleted', ordersDeleted: ordersDel.deletedCount });
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete user' });
   }
@@ -326,26 +267,26 @@ router.delete('/users/:id', adminAuth, async (req, res) => {
 
 // ══ 4. INVENTORY ══════════════════════════════════════
 
-// Full inventory list (all products, with stock levels)
 router.get('/inventory', adminAuth, async (req, res) => {
   try {
     const { category, lowStock } = req.query;
     const db    = getDB();
     const query = {};
 
-    if (category) query.category = category;
+    // category supports comma-separated or repeated params
+    if (category) {
+      const cats = Array.isArray(category) ? category : category.split(',').map(c => c.trim()).filter(Boolean);
+      query.category = cats.length === 1 ? cats[0] : { $in: cats };
+    }
     if (lowStock === 'true') query.stock = { $lt: 10 };
 
-    const products = await db.collection('products')
-      .find(query)
-      .sort({ stock: 1, name: 1 })
-      .toArray();
+    const products = await db.collection('products').find(query).sort({ stock: 1, name: 1 }).toArray();
 
     const summary = {
-      total:       products.length,
-      outOfStock:  products.filter(p => p.stock === 0).length,
-      lowStock:    products.filter(p => p.stock > 0 && p.stock < 10).length,
-      inStock:     products.filter(p => p.stock >= 10).length,
+      total:      products.length,
+      outOfStock: products.filter(p => p.stock === 0).length,
+      lowStock:   products.filter(p => p.stock > 0 && p.stock < 10).length,
+      inStock:    products.filter(p => p.stock >= 10).length,
     };
 
     res.json({ products, summary });
@@ -354,7 +295,6 @@ router.get('/inventory', adminAuth, async (req, res) => {
   }
 });
 
-// Update stock and/or availability for one product
 router.patch('/inventory/:id', adminAuth, async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
@@ -373,58 +313,33 @@ router.patch('/inventory/:id', adminAuth, async (req, res) => {
     );
 
     if (!result) return res.status(404).json({ message: 'Product not found' });
-
     res.json({ message: 'Inventory updated', product: result });
   } catch (err) {
     res.status(500).json({ message: 'Failed to update inventory' });
   }
 });
 
-// ══ 5. SETUP ══════════════════════════════════════════
-
-// One-time admin promotion.  Keep SECRET_KEY in .env as ADMIN_SECRET_KEY.
-router.post('/setup', async (req, res) => {
-  try {
-    const { phone, secretKey } = req.body;
-    const expectedKey = process.env.ADMIN_SECRET_KEY || 'FRESHLY_ADMIN_2024';
-
-    if (secretKey !== expectedKey)
-      return res.status(403).json({ message: 'Invalid secret key' });
-
-    const db = getDB();
-    const result = await db.collection('users').findOneAndUpdate(
-      { phone },
-      {
-        $set:        { role: 'admin', updatedAt: new Date() },
-        $setOnInsert: { phone, name: 'Admin', isVerified: true, createdAt: new Date() }
-      },
-      { upsert: true, returnDocument: 'after', projection: { otp: 0 } }
-    );
-
-    res.json({ message: 'Admin account ready', phone: result.phone });
-  } catch (err) {
-    res.status(500).json({ message: 'Setup failed', error: err.message });
-  }
-});
-
-// ══ 6. AUDIT LOGS ══════════════════════════════════════
+// ══ 5. AUDIT LOGS ══════════════════════════════════════
 
 router.get('/audit-logs', adminAuth, async (req, res) => {
   try {
-    const { action, entity, page = 1, limit = 50 } = req.query;
+    const { action, entity, role, search, page = 1, limit = 20 } = req.query;
     const db    = getDB();
     const query = {};
-    if (action && action !== 'all') query.action     = action;
-    if (entity && entity !== 'All Entities') query.entityType = entity;
+
+    if (action && action !== 'all')              query.action     = action;
+    if (entity && entity !== 'All Entities')     query.entityType = entity;
+    if (role   && role   !== 'all')              query.userRole   = role;
+    if (search) {
+      query.$or = [
+        { userPhone: { $regex: search, $options: 'i' } },
+        { entityId:  { $regex: search, $options: 'i' } },
+      ];
+    }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [logs, total] = await Promise.all([
-      db.collection('auditLogs')
-        .find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(parseInt(limit))
-        .toArray(),
+      db.collection('auditLogs').find(query).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).toArray(),
       db.collection('auditLogs').countDocuments(query),
     ]);
 
@@ -434,7 +349,7 @@ router.get('/audit-logs', adminAuth, async (req, res) => {
   }
 });
 
-// ══ 7. PAYMENTS LISTING ═════════════════════════════════
+// ══ 6. PAYMENTS ═══════════════════════════════════════
 
 router.get('/payments', adminAuth, async (req, res) => {
   try {
@@ -451,33 +366,57 @@ router.get('/payments', adminAuth, async (req, res) => {
           orderId: 1, total: 1, paymentMethod: 1, paymentStatus: 1,
           orderStatus: 1, createdAt: 1,
           'customerDetails.name': 1, 'customerDetails.phone': 1,
-        }
+        },
       }).sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit)).toArray(),
       db.collection('orders').countDocuments(query),
     ]);
 
-    // Summary stats
     const [totalRevenue, pendingCount, paidCount] = await Promise.all([
       db.collection('orders').aggregate([
         { $match: { paymentStatus: 'paid' } },
-        { $group: { _id: null, total: { $sum: '$total' } } }
+        { $group: { _id: null, total: { $sum: '$total' } } },
       ]).toArray(),
       db.collection('orders').countDocuments({ paymentStatus: 'pending' }),
-      db.collection('orders').countDocuments({ paymentStatus: 'paid' }),
+      db.collection('orders').countDocuments({ paymentStatus: 'paid'    }),
     ]);
 
     res.json({
-      payments,
-      total,
+      payments, total,
       pages: Math.ceil(total / parseInt(limit)),
       stats: {
         totalRevenue: totalRevenue[0]?.total || 0,
         pendingCount,
         paidCount,
-      }
+      },
     });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch payments', error: err.message });
+  }
+});
+
+// ══ 7. SETUP (one-time admin promotion) ═══════════════
+
+router.post('/setup', async (req, res) => {
+  try {
+    const { phone, secretKey } = req.body;
+    const expectedKey = process.env.ADMIN_SECRET_KEY || 'PROTEINSPOT_ADMIN_2024';
+
+    if (secretKey !== expectedKey)
+      return res.status(403).json({ message: 'Invalid secret key' });
+
+    const db     = getDB();
+    const result = await db.collection('users').findOneAndUpdate(
+      { phone },
+      {
+        $set:         { role: 'admin', updatedAt: new Date() },
+        $setOnInsert: { phone, name: 'Admin', isVerified: true, createdAt: new Date() },
+      },
+      { upsert: true, returnDocument: 'after', projection: { otp: 0 } }
+    );
+
+    res.json({ message: 'Admin account ready', phone: result.phone });
+  } catch (err) {
+    res.status(500).json({ message: 'Setup failed', error: err.message });
   }
 });
 

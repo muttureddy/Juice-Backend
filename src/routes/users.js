@@ -1,5 +1,5 @@
 /**
- * routes/users.js
+ * routes/users.js  —  ProteinSpot
  * ─────────────────────────────────────────────────────
  * PURPOSE: Logged-in user profile management.
  *
@@ -7,20 +7,17 @@
  *   GET /api/users/profile  – get own profile
  *   PUT /api/users/profile  – update name, email, address
  *
- * FIELDS THE USER CAN UPDATE:
- *   name, email, address (street, city, state, pincode, landmark)
- *
  * TO ADD MORE EDITABLE FIELDS:
- *   Add them to the 'allowedFields' array below.
+ *   Add the field name to the ALLOWED_FIELDS array below.
  * ─────────────────────────────────────────────────────
  */
 
 const express = require('express');
 const router  = express.Router();
-const { getDB, toObjectId } = require('../db');
-const { auth } = require('../middleware/auth');
+const { getDB } = require('../db');
+const { auth }  = require('../middleware/auth');
 
-// Whitelist of fields the user is allowed to update
+// Whitelist: only these fields can be updated via this route
 const ALLOWED_FIELDS = ['name', 'email', 'address'];
 
 // ── GET /profile ───────────────────────────────────────
@@ -29,7 +26,7 @@ router.get('/profile', auth, async (req, res) => {
     const db   = getDB();
     const user = await db.collection('users').findOne(
       { _id: req.user._id },
-      { projection: { otp: 0 } }        // strip OTP
+      { projection: { otp: 0 } }  // never expose OTP
     );
 
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -44,14 +41,12 @@ router.put('/profile', auth, async (req, res) => {
   try {
     const updates = {};
 
-    // Only copy whitelisted fields
     for (const field of ALLOWED_FIELDS) {
       if (req.body[field] !== undefined) updates[field] = req.body[field];
     }
 
-    if (Object.keys(updates).length === 0) {
+    if (Object.keys(updates).length === 0)
       return res.status(400).json({ message: 'No valid fields to update' });
-    }
 
     updates.updatedAt = new Date();
 

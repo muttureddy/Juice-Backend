@@ -1,18 +1,27 @@
 /**
- * routes/orders.js
- * Customer order placement and tracking.
+ * routes/orders.js  —  ProteinSpot
+ * ─────────────────────────────────────────────────────
+ * PURPOSE: Customer order placement and tracking.
+ *
+ * ROUTES:
+ *   POST  /api/orders            – place a new order
+ *   GET   /api/orders/my-orders  – current user's orders
+ *   GET   /api/orders/:id        – single order by id or orderId
+ *   PATCH /api/orders/:id/cancel – customer cancels an order
+ * ─────────────────────────────────────────────────────
  */
 
 const express = require('express');
 const router  = express.Router();
 const { getDB, toObjectId } = require('../db');
-const { auth } = require('../middleware/auth');
+const { auth }              = require('../middleware/auth');
 
-const DELIVERY_THRESHOLD = 299;
+const DELIVERY_THRESHOLD = 299;  // free delivery above this subtotal
 const DELIVERY_FEE       = 40;
 
+// ProteinSpot order ID: PS + last 8 digits of timestamp + 4 random alphanum
 const makeOrderId = () =>
-  'FRH' + Date.now().toString().slice(-8) +
+  'PS' + Date.now().toString().slice(-8) +
   Math.random().toString(36).slice(2, 6).toUpperCase();
 
 // ── POST /  ────────────────────────────────────────────
@@ -24,8 +33,7 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'Order must have at least one item' });
 
     const db = getDB();
-
-    let subtotal   = 0;
+    let subtotal  = 0;
     const orderItems = [];
 
     for (const item of items) {
@@ -36,9 +44,10 @@ router.post('/', auth, async (req, res) => {
         return res.status(404).json({ message: `Product ${item.productId} not found` });
       if (!product.isAvailable)
         return res.status(400).json({ message: `${product.name} is currently unavailable` });
-      // Stock check
       if (product.stock !== undefined && product.stock < item.quantity)
-        return res.status(400).json({ message: `Only ${product.stock} unit(s) of "${product.name}" left in stock` });
+        return res.status(400).json({
+          message: `Only ${product.stock} unit(s) of "${product.name}" left in stock`,
+        });
 
       subtotal += product.price * item.quantity;
       orderItems.push({
@@ -47,7 +56,7 @@ router.post('/', auth, async (req, res) => {
         image:     product.image,
         price:     product.price,
         quantity:  item.quantity,
-        stock:     product.stock,   // carried for decrement — stripped below
+        stock:     product.stock, // used for decrement, not stored
       });
     }
 
@@ -56,38 +65,38 @@ router.post('/', auth, async (req, res) => {
     const now         = new Date();
 
     const order = {
-      orderId: makeOrderId(),
-      userId:  req.user._id,
+      orderId:           makeOrderId(),
+      userId:            req.user._id,
       customerDetails,
-      items:   orderItems,
+      items:             orderItems,
       subtotal,
       deliveryFee,
-      discount: 0,
+      discount:          0,
       total,
-      paymentMethod: paymentMethod || 'cod',
-      paymentStatus: 'pending',
-      orderStatus:   'pending',
-      statusHistory: [{ status: 'pending', note: 'Order placed', timestamp: now }],
+      paymentMethod:     paymentMethod || 'cod',
+      paymentStatus:     'pending',
+      orderStatus:       'pending',
+      statusHistory:     [{ status: 'pending', note: 'Order placed', timestamp: now }],
       estimatedDelivery: new Date(now.getTime() + 2 * 60 * 60 * 1000),
-      deliveredAt: null,
-      notes:       notes || '',
-      createdAt:   now,
-      updatedAt:   now,
+      deliveredAt:       null,
+      notes:             notes || '',
+      createdAt:         now,
+      updatedAt:         now,
     };
 
-    const result = await db.collection('orders').insertOne(order);
+    const result    = await db.collection('orders').insertOne(order);
     const savedOrder = { ...order, _id: result.insertedId };
 
-    // ── Decrement stock for each ordered item ────────
-    // Uses $inc to atomically reduce stock; floor at 0 to avoid negatives
+    // ── Decrement stock atomically ──────────────────────
     const bulkOps = orderItems
       .filter(i => i.stock !== undefined)
       .map(i => ({
         updateOne: {
           filter: { _id: i.productId },
           update: { $inc: { stock: -i.quantity }, $set: { updatedAt: new Date() } },
-        }
+        },
       }));
+
     if (bulkOps.length > 0) {
       await db.collection('products').bulkWrite(bulkOps, { ordered: false });
       // Auto-hide products that just hit 0 stock
@@ -122,7 +131,7 @@ router.get('/my-orders', auth, async (req, res) => {
 // ── GET /:id  ──────────────────────────────────────────
 router.get('/:id', auth, async (req, res) => {
   try {
-    const db = getDB();
+    const db     = getDB();
     const filter = {
       $or: [
         { orderId: req.params.id },
@@ -151,19 +160,19 @@ router.patch('/:id/cancel', auth, async (req, res) => {
 
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    const nonCancellable = ['delivered', 'shipped', 'out_for_delivery'];
-    if (nonCancellable.includes(order.orderStatus)) {
+    if (['delivered', 'shipped', 'out_for_delivery'].includes(order.orderStatus)) {
       return res.status(400).json({
-        message: `Cannot cancel order with status: ${order.orderStatus}`,
+        message: `Cannot cancel an order with status: ${order.orderStatus}`,
       });
     }
 
-    const now       = new Date();
-    const newStatus = { status: 'cancelled', note: 'Cancelled by customer', timestamp: now };
-
+    const now    = new Date();
     const result = await db.collection('orders').findOneAndUpdate(
       { _id },
-      { $set: { orderStatus: 'cancelled', updatedAt: now }, $push: { statusHistory: newStatus } },
+      {
+        $set:  { orderStatus: 'cancelled', updatedAt: now },
+        $push: { statusHistory: { status: 'cancelled', note: 'Cancelled by customer', timestamp: now } },
+      },
       { returnDocument: 'after' }
     );
 

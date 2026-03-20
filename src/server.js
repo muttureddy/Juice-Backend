@@ -1,95 +1,72 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cors    = require('cors');
 const { connectDB } = require('./db');
+
+// ── Route imports ──────────────────────────────────────
+const authRoutes    = require('./routes/auth');
+const productRoutes = require('./routes/products');
+const orderRoutes   = require('./routes/orders');
+const userRoutes    = require('./routes/users');
+const adminRoutes   = require('./routes/admin');
 
 const app = express();
 
-// CORS
-app.use(cors({ 
-  origin: '*', // Allow all origins for now
-  credentials: true 
-}));
+// ── CORS ───────────────────────────────────────────────
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  process.env.FRONTEND_URL,
+  process.env.FRONTEND_URL_VERCEL,
+  process.env.FRONTEND_URL_VERCEL2,
+  process.env.FRONTEND_URL_LOCAL,
+].filter(Boolean);
 
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+// ── Body parsers ───────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// In-memory notification storage
-const notifications = {
-  users: new Map(), // userId -> [notifications]
-  admins: []        // all admin notifications
-};
+// ── Mount routes ───────────────────────────────────────
+app.use('/api/auth',     authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders',   orderRoutes);
+app.use('/api/users',    userRoutes);
+app.use('/api/admin',    adminRoutes);
 
-// Helper functions
-global.notifyUser = (userId, type, message) => {
-  if (!notifications.users.has(userId)) {
-    notifications.users.set(userId, []);
-  }
-  notifications.users.get(userId).push({
-    id: Date.now(),
-    type,
-    message,
-    timestamp: Date.now()
-  });
-  console.log(`📤 User notification: ${userId} - ${type}`);
-};
-
-global.notifyAdmins = (type, message) => {
-  notifications.admins.push({
-    id: Date.now(),
-    type,
-    message,
-    timestamp: Date.now()
-  });
-  console.log(`📤 Admin notification: ${type}`);
-};
-
-// Polling endpoint
-app.get('/api/notifications/poll', (req, res) => {
-  const { userId, role, since } = req.query;
-  const sinceTime = parseInt(since) || 0;
-  let results = [];
-
-  // Get user notifications
-  if (notifications.users.has(userId)) {
-    results = notifications.users.get(userId)
-      .filter(n => n.timestamp > sinceTime);
-  }
-
-  // Add admin notifications if user is admin
-  if (role === 'admin') {
-    const adminNotifs = notifications.admins
-      .filter(n => n.timestamp > sinceTime);
-    results = [...results, ...adminNotifs];
-  }
-
+// ── Health check ───────────────────────────────────────
+app.get('/api/health', (_req, res) =>
   res.json({
-    notifications: results,
-    timestamp: Date.now()
-  });
+    status:  'OK',
+    message: 'ProteinSpot API is running',
+    brand:   process.env.APP_NAME || 'ProteinSpot',
+  })
+);
+
+// ── 404 handler ────────────────────────────────────────
+app.use((_req, res) => {
+  res.status(404).json({ message: 'Route not found' });
 });
 
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/products', require('./routes/products'));
-app.use('/api/orders', require('./routes/orders'));
-app.use('/api/users', require('./routes/users'));
-app.use('/api/admin', require('./routes/admin'));
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'OK',
-    notifications: 'polling',
-    timestamp: Date.now()
-  });
+// ── Global error handler ───────────────────────────────
+app.use((err, _req, res, _next) => {
+  console.error('Unhandled error:', err.stack);
+  res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
-// Start server
+// ── Start ──────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
-    console.log(`📡 Polling: /api/notifications/poll`);
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, () =>
+      console.log(`🚀 ProteinSpot API running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`)
+    );
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection failed:', err.message);
+    process.exit(1);
   });
-});
+
+module.exports = { app };
