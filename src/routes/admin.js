@@ -248,6 +248,131 @@ router.patch("/orders/:id/status", adminAuth, async (req, res) => {
   }
 });
 
+/* ── PATCH /orders/:id/admin-note  (admin) ──────────
+   Set or update a freeform admin message on an order.
+   Visible to the customer in their order history.
+─────────────────────────────────────────────────── */
+router.patch("/orders/:id/admin-note", adminAuth, async (req, res) => {
+  try {
+    const { adminNote } = req.body;
+    if (adminNote === undefined)
+      return res.status(400).json({ message: "adminNote is required" });
+
+    const _id = toObjectId(req.params.id);
+    if (!_id) return res.status(400).json({ message: "Invalid order ID" });
+
+    const db = getDB();
+    const result = await db
+      .collection("orders")
+      .findOneAndUpdate(
+        { _id },
+        { $set: { adminNote: adminNote.trim(), updatedAt: new Date() } },
+        { returnDocument: "after" },
+      );
+
+    if (!result) return res.status(404).json({ message: "Order not found" });
+
+    await logAction(
+      req.user,
+      "order_note",
+      "Order",
+      req.params.id,
+      { note: adminNote.trim() },
+      req,
+    );
+
+    res.json({ message: "Note saved", order: result });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to save note", error: err.message });
+  }
+});
+
+/* ── PATCH /orders/:id/items  (admin) ───────────────
+   Admin can mark items as removed (struck off).
+   Recalculates subtotal, deliveryFee, and total.
+   Each item gets a `removed: true` flag + removedAt timestamp.
+─────────────────────────────────────────────────── */
+const DELIVERY_THRESHOLD = 299;
+const DELIVERY_FEE_AMOUNT = 40;
+
+router.patch("/orders/:id/items", adminAuth, async (req, res) => {
+  try {
+    const { removedItemIndexes } = req.body;
+    // removedItemIndexes: array of item indexes (0-based) to mark as removed
+
+    if (!Array.isArray(removedItemIndexes))
+      return res
+        .status(400)
+        .json({ message: "removedItemIndexes must be an array" });
+
+    const _id = toObjectId(req.params.id);
+    if (!_id) return res.status(400).json({ message: "Invalid order ID" });
+
+    const db = getDB();
+    const order = await db.collection("orders").findOne({ _id });
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    // Mark items as removed / restore them
+    const now = new Date();
+    const items = order.items.map((item, i) => ({
+      ...item,
+      removed: removedItemIndexes.includes(i),
+      removedAt: removedItemIndexes.includes(i) ? now : null,
+    }));
+
+    // Recalculate totals using only active (non-removed) items
+    const subtotal = items
+      .filter((i) => !i.removed)
+      .reduce((s, i) => s + i.price * i.quantity, 0);
+    const deliveryFee =
+      subtotal === 0
+        ? 0
+        : subtotal >= DELIVERY_THRESHOLD
+          ? 0
+          : DELIVERY_FEE_AMOUNT;
+    const total = subtotal + deliveryFee;
+    const removedCount = items.filter((i) => i.removed).length;
+
+    const result = await db.collection("orders").findOneAndUpdate(
+      { _id },
+      {
+        $set: {
+          items,
+          subtotal,
+          deliveryFee,
+          total,
+          updatedAt: now,
+        },
+        $push: {
+          statusHistory: {
+            status: order.orderStatus,
+            note: `Admin adjusted order: ${removedCount} item(s) removed. New total: ₹${total}`,
+            timestamp: now,
+          },
+        },
+      },
+      { returnDocument: "after" },
+    );
+
+    await logAction(
+      req.user,
+      "order_items_updated",
+      "Order",
+      req.params.id,
+      { removedCount, newTotal: total },
+      req,
+    );
+
+    res.json({ message: "Order items updated", order: result });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to update items", error: err.message });
+  }
+});
+
 /* ══ 3. USERS ═══════════════════════════════════════ */
 
 router.get("/users", adminAuth, async (req, res) => {
@@ -572,6 +697,117 @@ router.get("/payments", adminAuth, async (req, res) => {
     res
       .status(500)
       .json({ message: "Failed to fetch payments", error: err.message });
+  }
+});
+
+// ══ CONTACT QUERIES ═══════════════════════════════════
+
+// POST /api/admin/contact  (public — no auth needed)
+// Anyone can submit a contact query
+router.post("/contact", async (req, res) => {
+  try {
+    const { name, email, phone, subject, message } = req.body;
+    if (!name?.trim())
+      return res.status(400).json({ message: "Name is required" });
+    if (!message?.trim())
+      return res.status(400).json({ message: "Message is required" });
+    if (!email?.trim() && !phone?.trim())
+      return res.status(400).json({ message: "Email or phone is required" });
+
+    const db = getDB();
+    const doc = {
+      name: name.trim(),
+      email: email?.trim() || null,
+      phone: phone?.trim() || null,
+      subject: subject?.trim() || "General Enquiry",
+      message: message.trim(),
+      status: "new", // new | read | replied
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const result = await db.collection("contactQueries").insertOne(doc);
+    res
+      .status(201)
+      .json({ message: "Query submitted successfully", id: result.insertedId });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to submit query", error: err.message });
+  }
+});
+
+// GET /api/admin/contact  (admin)
+router.get("/contact", adminAuth, async (req, res) => {
+  try {
+    const { status, page = 1, limit = 20 } = req.query;
+    const db = getDB();
+    const query = {};
+    if (status && status !== "all") query.status = status;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const [queries, total, newCount] = await Promise.all([
+      db
+        .collection("contactQueries")
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit))
+        .toArray(),
+      db.collection("contactQueries").countDocuments(query),
+      db.collection("contactQueries").countDocuments({ status: "new" }),
+    ]);
+    res.json({
+      queries,
+      total,
+      newCount,
+      pages: Math.ceil(total / parseInt(limit)),
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch queries", error: err.message });
+  }
+});
+
+// PATCH /api/admin/contact/:id  (admin) — update status
+router.patch("/contact/:id", adminAuth, async (req, res) => {
+  try {
+    const _id = toObjectId(req.params.id);
+    if (!_id) return res.status(400).json({ message: "Invalid ID" });
+
+    const { status } = req.body;
+    if (!["new", "read", "replied"].includes(status))
+      return res.status(400).json({ message: "Invalid status" });
+
+    const db = getDB();
+    const result = await db
+      .collection("contactQueries")
+      .findOneAndUpdate(
+        { _id },
+        { $set: { status, updatedAt: new Date() } },
+        { returnDocument: "after" },
+      );
+    if (!result) return res.status(404).json({ message: "Query not found" });
+    res.json({ message: "Status updated", query: result });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to update query", error: err.message });
+  }
+});
+
+// DELETE /api/admin/contact/:id  (admin)
+router.delete("/contact/:id", adminAuth, async (req, res) => {
+  try {
+    const _id = toObjectId(req.params.id);
+    if (!_id) return res.status(400).json({ message: "Invalid ID" });
+    const db = getDB();
+    await db.collection("contactQueries").deleteOne({ _id });
+    res.json({ message: "Query deleted" });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to delete query", error: err.message });
   }
 });
 
