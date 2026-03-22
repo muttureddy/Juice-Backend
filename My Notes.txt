@@ -1,8 +1,5 @@
 
 
 read more on particular product
----- yet to make it better.
 
-working fine as of now, no payment pages.
-
-this is production ready codes zip file
+working fine as of now, no payment pages., new sections added

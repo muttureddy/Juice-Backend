@@ -1,31 +1,22 @@
 /**
  * routes/products.js  —  ProteinSpot
- * ─────────────────────────────────────────────────────
- * PURPOSE: Product catalogue CRUD.
  *
- * ROUTES (public):
- *   GET  /api/products           – list / filter / search
- *   GET  /api/products/:id       – single product
+ * PUBLIC
+ *   GET  /api/products/sections      sections + subcategories + live counts
+ *   GET  /api/products               product list  (?section= / ?category= / ?search= / ?bestseller=)
+ *   GET  /api/products/:id           single product
  *
- * ROUTES (admin only):
- *   POST   /api/products              – create product
- *   PUT    /api/products/:id          – update product
- *   DELETE /api/products/:id          – delete product
- *   PATCH  /api/products/:id/stock    – update stock only
- *   POST   /api/products/cloudinary-sign – signed upload URL
- *   POST   /api/products/seed         – seed from products.json
- *
- * SECTIONS & CATEGORIES:
- *   Juices      → seasonal-juices, citrus-juices, green-juices,
- *                 berry-juices, energy-shots, detox-juices, special-juices
- *   Salads      → fruit-salad, bowls
- *   Sandwiches  → veg-sandwiches, grilled, wraps
- *   Smoothies   → protein-smoothies, fruit-smoothies, green-smoothies
- * ─────────────────────────────────────────────────────
+ * ADMIN
+ *   POST   /api/products/cloudinary-sign
+ *   POST   /api/products
+ *   PUT    /api/products/:id
+ *   DELETE /api/products/:id
+ *   PATCH  /api/products/:id/stock
+ *   POST   /api/products/seed
  */
 
 const express = require("express");
-const router = require("express").Router();
+const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 const crypto = require("crypto");
@@ -33,46 +24,72 @@ const { getDB, toObjectId } = require("../db");
 const { adminAuth } = require("../middleware/auth");
 const { logAction } = require("../middleware/auditLog");
 
-// ── Category → section mapping (for type-based filtering) ──
-const SECTION_CATEGORIES = {
-  juices: [
-    "seasonal-juices",
-    "citrus-juices",
-    "green-juices",
-    "berry-juices",
-    "energy-shots",
-    "detox-juices",
-    "special-juices",
-  ],
-  salads: ["fruit-salad", "bowls"],
-  sandwiches: ["veg-sandwiches", "grilled", "wraps"],
-  smoothies: ["protein-smoothies", "fruit-smoothies", "green-smoothies"],
-};
+/* ── Section + subcategory master list ─────────────────
+   Single source of truth for the whole app.
+   Add a new section/category here — nothing else changes.
+─────────────────────────────────────────────────────── */
+const SECTIONS = [
+  {
+    key: "juices",
+    label: "Juices",
+    emoji: "🥤",
+    categories: [
+      { key: "seasonal-juices", label: "Seasonal", emoji: "🌸" },
+      { key: "citrus-juices", label: "Citrus", emoji: "🍊" },
+      { key: "green-juices", label: "Green", emoji: "🥦" },
+      { key: "berry-juices", label: "Berry", emoji: "🫐" },
+      { key: "energy-shots", label: "Energy Shots", emoji: "⚡" },
+      { key: "detox-juices", label: "Detox", emoji: "✨" },
+      { key: "special-juices", label: "Special", emoji: "🌟" },
+    ],
+  },
+  {
+    key: "salads",
+    label: "Salads",
+    emoji: "🥗",
+    categories: [
+      { key: "fruit-salad", label: "Fruit Salad", emoji: "🍓" },
+      { key: "bowls", label: "Bowls", emoji: "🥣" },
+    ],
+  },
+  {
+    key: "sandwiches",
+    label: "Sandwiches",
+    emoji: "🥪",
+    categories: [
+      { key: "veg-sandwiches", label: "Veg", emoji: "🥬" },
+      { key: "grilled", label: "Grilled", emoji: "🔥" },
+      { key: "wraps", label: "Wraps", emoji: "🌯" },
+    ],
+  },
+  {
+    key: "smoothies",
+    label: "Smoothies",
+    emoji: "🍓",
+    categories: [
+      { key: "protein-smoothies", label: "Protein", emoji: "💪" },
+      { key: "fruit-smoothies", label: "Fruit", emoji: "🍑" },
+      { key: "green-smoothies", label: "Green", emoji: "🥬" },
+    ],
+  },
+];
 
-// ── POST /cloudinary-sign  (admin) ─────────────────────
+// ── POST /cloudinary-sign  (admin) ──────────────────────
 router.post("/cloudinary-sign", adminAuth, (req, res) => {
   try {
     const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } =
       process.env;
-    if (
-      !CLOUDINARY_CLOUD_NAME ||
-      !CLOUDINARY_API_KEY ||
-      !CLOUDINARY_API_SECRET
-    ) {
-      return res.status(500).json({
-        message:
-          "Cloudinary env vars not configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET to .env",
-      });
-    }
+    if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET)
+      return res
+        .status(500)
+        .json({ message: "Cloudinary env vars not configured." });
 
     const timestamp = Math.round(Date.now() / 1000);
     const folder = "proteinspot-products";
-
-    // Signature: SHA-1 of "folder=<folder>&timestamp=<ts><secret>"
-    // IMPORTANT: frontend must send EXACTLY these two fields (folder + timestamp)
-    // in the FormData — adding any extra signed param will break the signature.
-    const signStr = `folder=${folder}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
-    const signature = crypto.createHash("sha1").update(signStr).digest("hex");
+    const signature = crypto
+      .createHash("sha1")
+      .update(`folder=${folder}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`)
+      .digest("hex");
 
     res.json({
       cloudName: CLOUDINARY_CLOUD_NAME,
@@ -84,79 +101,90 @@ router.post("/cloudinary-sign", adminAuth, (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .json({
-        message: "Failed to generate Cloudinary signature",
-        error: err.message,
-      });
+      .json({ message: "Failed to generate signature", error: err.message });
   }
 });
 
-// ── GET /categories  (public) ──────────────────────────
-// Returns every distinct category that has at least one available product.
-// Frontend uses this to build dynamic sub-category filters per section.
-router.get("/categories", async (req, res) => {
+// ── GET /sections  (public) ─────────────────────────────
+// One call gives the frontend everything it needs to build the tab bar
+// and subcategory pills. Only returns subcategories that have ≥1 product.
+//
+// Response:
+// {
+//   sections: [
+//     { key, label, emoji, totalCount,
+//       categories: [{ key, label, emoji, count }, ...] }
+//   ]
+// }
+router.get("/sections", async (req, res) => {
   try {
     const db = getDB();
-    const results = await db
+
+    // Count available products grouped by category — single DB round trip
+    const rows = await db
       .collection("products")
       .aggregate([
         { $match: { isAvailable: true } },
         { $group: { _id: "$category", count: { $sum: 1 } } },
-        { $match: { _id: { $ne: null } } },
-        { $sort: { _id: 1 } },
       ])
       .toArray();
 
-    const categories = results.map((r) => ({
-      category: r._id,
-      count: r.count,
-    }));
-    res.json({ categories });
+    const countMap = {};
+    rows.forEach((r) => {
+      if (r._id) countMap[r._id] = r.count;
+    });
+
+    const sections = SECTIONS.map((sec) => {
+      const categories = sec.categories
+        .map((cat) => ({ ...cat, count: countMap[cat.key] || 0 }))
+        .filter((cat) => cat.count > 0); // skip empty subcategories
+
+      return {
+        key: sec.key,
+        label: sec.label,
+        emoji: sec.emoji,
+        totalCount: categories.reduce((s, c) => s + c.count, 0),
+        categories,
+      };
+    });
+
+    res.json({ sections });
   } catch (err) {
     res
       .status(500)
-      .json({ message: "Failed to fetch categories", error: err.message });
+      .json({ message: "Failed to fetch sections", error: err.message });
   }
 });
 
-// ── GET /  (public) ────────────────────────────────────
+// ── GET /  (public) ─────────────────────────────────────
+// ?section=sandwiches            all products in that section
+// ?category=veg-sandwiches       products in one subcategory
+// ?search=paneer                 text search
+// ?bestseller=true               only bestsellers
+// ?available=false               include hidden products (admin)
 router.get("/", async (req, res) => {
   try {
-    const { category, bestseller, featured, search, available, type, section } =
+    const { section, category, bestseller, featured, search, available } =
       req.query;
     const db = getDB();
     const query = {};
 
-    // Default: only show available products (pass available=false to override)
     if (available !== "false") query.isAvailable = true;
 
-    // Category filter — supports multiple values (repeating ?category=x&category=y)
     if (category) {
-      const cats = Array.isArray(category) ? category : [category];
-      query.category = cats.length === 1 ? cats[0] : { $in: cats };
-    }
-
-    // Section filter (maps to the section's category list)
-    if (section && !category && SECTION_CATEGORIES[section]) {
-      query.category = { $in: SECTION_CATEGORIES[section] };
-    }
-
-    // Legacy type filter: juice | food
-    if (!category && !section) {
-      const FOOD_CATS = [
-        ...SECTION_CATEGORIES.salads,
-        ...SECTION_CATEGORIES.sandwiches,
-      ];
-      if (type === "food") query.category = { $in: FOOD_CATS };
-      if (type === "juice") query.category = { $nin: FOOD_CATS };
+      // exact subcategory
+      query.category = category;
+    } else if (section) {
+      // whole section — look up its category keys from master list
+      const sec = SECTIONS.find((s) => s.key === section);
+      if (sec) query.category = { $in: sec.categories.map((c) => c.key) };
     }
 
     if (bestseller === "true") query.isBestseller = true;
     if (featured === "true") query.isFeatured = true;
 
-    // Text search
     if (search) {
-      const re = new RegExp(search, "i");
+      const re = new RegExp(search.trim(), "i");
       query.$or = [{ name: re }, { description: re }, { tags: { $in: [re] } }];
     }
 
@@ -174,15 +202,13 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ── GET /:id  (public) ─────────────────────────────────
+// ── GET /:id  (public) ──────────────────────────────────
 router.get("/:id", async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
     if (!_id) return res.status(400).json({ message: "Invalid product ID" });
 
-    const db = getDB();
-    const product = await db.collection("products").findOne({ _id });
-
+    const product = await getDB().collection("products").findOne({ _id });
     if (!product) return res.status(404).json({ message: "Product not found" });
     res.json(product);
   } catch (err) {
@@ -190,7 +216,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ── POST /  (admin) ────────────────────────────────────
+// ── POST /  (admin) ─────────────────────────────────────
 router.post("/", adminAuth, async (req, res) => {
   try {
     const now = new Date();
@@ -203,7 +229,6 @@ router.post("/", adminAuth, async (req, res) => {
       createdAt: now,
       updatedAt: now,
     };
-
     if (!doc.name || !doc.price || !doc.category)
       return res
         .status(400)
@@ -219,7 +244,6 @@ router.post("/", adminAuth, async (req, res) => {
       { name: doc.name, price: doc.price, category: doc.category },
       req,
     );
-
     res.status(201).json({ ...doc, _id: result.insertedId });
   } catch (err) {
     res
@@ -228,21 +252,20 @@ router.post("/", adminAuth, async (req, res) => {
   }
 });
 
-// ── PUT /:id  (admin) ──────────────────────────────────
+// ── PUT /:id  (admin) ───────────────────────────────────
 router.put("/:id", adminAuth, async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
     if (!_id) return res.status(400).json({ message: "Invalid product ID" });
 
-    const db = getDB();
     const update = { ...req.body, updatedAt: new Date() };
     delete update._id;
 
-    const result = await db
+    const result = await getDB()
       .collection("products")
       .findOneAndUpdate({ _id }, { $set: update }, { returnDocument: "after" });
-
     if (!result) return res.status(404).json({ message: "Product not found" });
+
     await logAction(
       req.user,
       "product_updated",
@@ -251,7 +274,6 @@ router.put("/:id", adminAuth, async (req, res) => {
       { name: result.name },
       req,
     );
-
     res.json(result);
   } catch (err) {
     res
@@ -260,22 +282,20 @@ router.put("/:id", adminAuth, async (req, res) => {
   }
 });
 
-// ── PATCH /:id/stock  (admin) ──────────────────────────
+// ── PATCH /:id/stock  (admin) ───────────────────────────
 router.patch("/:id/stock", adminAuth, async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
     if (!_id) return res.status(400).json({ message: "Invalid product ID" });
 
     const { stock, isAvailable } = req.body;
-    const db = getDB();
     const update = { updatedAt: new Date() };
     if (stock !== undefined) update.stock = parseInt(stock, 10);
     if (isAvailable !== undefined) update.isAvailable = Boolean(isAvailable);
 
-    const result = await db
+    const result = await getDB()
       .collection("products")
       .findOneAndUpdate({ _id }, { $set: update }, { returnDocument: "after" });
-
     if (!result) return res.status(404).json({ message: "Product not found" });
     res.json(result);
   } catch (err) {
@@ -285,15 +305,13 @@ router.patch("/:id/stock", adminAuth, async (req, res) => {
   }
 });
 
-// ── DELETE /:id  (admin) ───────────────────────────────
+// ── DELETE /:id  (admin) ────────────────────────────────
 router.delete("/:id", adminAuth, async (req, res) => {
   try {
     const _id = toObjectId(req.params.id);
     if (!_id) return res.status(400).json({ message: "Invalid product ID" });
 
-    const db = getDB();
-    const result = await db.collection("products").deleteOne({ _id });
-
+    const result = await getDB().collection("products").deleteOne({ _id });
     if (result.deletedCount === 0)
       return res.status(404).json({ message: "Product not found" });
 
@@ -311,24 +329,20 @@ router.delete("/:id", adminAuth, async (req, res) => {
   }
 });
 
-// ── POST /seed  (admin) ────────────────────────────────
+// ── POST /seed  (admin) ─────────────────────────────────
 router.post("/seed", adminAuth, async (req, res) => {
   try {
     const db = getDB();
     const col = db.collection("products");
-
     if (req.query.clear === "true") await col.deleteMany({});
 
-    const jsonPath = path.join(__dirname, "../data/products.json");
-    const products = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+    const products = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../data/products.json"), "utf-8"),
+    );
     const now = new Date();
-    const docs = products.map((p) => ({
-      ...p,
-      createdAt: now,
-      updatedAt: now,
-    }));
-
-    const result = await col.insertMany(docs);
+    const result = await col.insertMany(
+      products.map((p) => ({ ...p, createdAt: now, updatedAt: now })),
+    );
     res.json({ message: `${result.insertedCount} products seeded` });
   } catch (err) {
     res.status(500).json({ message: "Seeding failed", error: err.message });

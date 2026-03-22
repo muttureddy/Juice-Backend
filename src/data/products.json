@@ -6,9 +6,22 @@
     "originalPrice": 110,
     "category": "seasonal-juices",
     "image": "https://images.unsplash.com/photo-1546173159-315724a31696?w=500",
-    "ingredients": ["Alphonso Mango", "Himalayan Pink Salt", "Lemon"],
-    "nutritionInfo": { "calories": 120, "protein": "1.5g", "carbs": "28g", "fiber": "2g" },
-    "tags": ["mango", "tropical", "vitamin c"],
+    "ingredients": [
+      "Alphonso Mango",
+      "Himalayan Pink Salt",
+      "Lemon"
+    ],
+    "nutritionInfo": {
+      "calories": 120,
+      "protein": "1.5g",
+      "carbs": "28g",
+      "fiber": "2g"
+    },
+    "tags": [
+      "mango",
+      "tropical",
+      "vitamin c"
+    ],
     "isBestseller": true,
     "isFeatured": true,
     "isAvailable": true,
@@ -25,9 +38,22 @@
     "originalPrice": 85,
     "category": "seasonal-juices",
     "image": "https://images.unsplash.com/photo-1589733955941-5eeaf752f6dd?w=500",
-    "ingredients": ["Watermelon", "Fresh Mint", "Lime"],
-    "nutritionInfo": { "calories": 80, "protein": "0.6g", "carbs": "18g", "fiber": "1g" },
-    "tags": ["watermelon", "cooling", "hydrating"],
+    "ingredients": [
+      "Watermelon",
+      "Fresh Mint",
+      "Lime"
+    ],
+    "nutritionInfo": {
+      "calories": 80,
+      "protein": "0.6g",
+      "carbs": "18g",
+      "fiber": "1g"
+    },
+    "tags": [
+      "watermelon",
+      "cooling",
+      "hydrating"
+    ],
     "isBestseller": true,
     "isFeatured": false,
     "isAvailable": true,
@@ -44,9 +70,22 @@
     "originalPrice": null,
     "category": "seasonal-juices",
     "image": "https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=500",
-    "ingredients": ["Litchi", "Rose Water", "Lemon"],
-    "nutritionInfo": { "calories": 100, "protein": "0.8g", "carbs": "22g", "fiber": "1g" },
-    "tags": ["litchi", "floral", "exotic"],
+    "ingredients": [
+      "Litchi",
+      "Rose Water",
+      "Lemon"
+    ],
+    "nutritionInfo": {
+      "calories": 100,
+      "protein": "0.8g",
+      "carbs": "22g",
+      "fiber": "1g"
+    },
+    "tags": [
+      "litchi",
+      "floral",
+      "exotic"
+    ],
     "isBestseller": false,
     "isFeatured": false,
     "isAvailable": true,
@@ -58,14 +97,25 @@
   },
   {
     "name": "Orange Sunrise",
-    "description": "100% pure Valencia orange juice, cold-pressed to preserve all nutrients. No sugar, no water added.",
+    "description": "100% pure Valencia orange juice, cold-pressed to preserve all nutrients. No sugar added.",
     "price": 79,
     "originalPrice": 95,
     "category": "citrus-juices",
     "image": "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=500",
-    "ingredients": ["Valencia Oranges"],
-    "nutritionInfo": { "calories": 110, "protein": "1.7g", "carbs": "25g", "fiber": "0.5g" },
-    "tags": ["orange", "vitamin c", "immunity"],
+    "ingredients": [
+      "Valencia Oranges"
+    ],
+    "nutritionInfo": {
+      "calories": 110,
+      "protein": "1.7g",
+      "carbs": "25g",
+      "fiber": "0.5g"
+    },
+    "tags": [
+      "orange",
+      "vitamin c",
+      "immunity"
+    ],
     "isBestseller": true,
     "isFeatured": true,
     "isAvailable": true,
@@ -81,283 +131,1859 @@
     "price": 69,
     "originalPrice": null,
     "category": "citrus-juices",
-    "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500",
-    "ingredients": ["Lemon", "Ginger", "Turmeric", "Black Pepper"],
-    "nutritionInfo": { "calories": 45, "protein": "0.5g", "carbs": "11g", "fiber": "0.5g" },
-    "tags": ["lemon", "immunity", "ginger"],
-    "isBestseller": true,
+    "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500",
+    "ingredients": [
+      "Lemon",
+      "Ginger",
+      "Turmeric",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 60,
+      "protein": "0.5g",
+      "carbs": "14g",
+      "fiber": "0.3g"
+    },
+    "tags": [
+      "lemon",
+      "ginger",
+      "immunity",
+      "detox"
+    ],
+    "isBestseller": false,
     "isFeatured": false,
     "isAvailable": true,
     "rating": 4.7,
-    "reviewCount": 321,
+    "reviewCount": 201,
     "volume": "200ml",
-    "prepTime": "5 min",
+    "prepTime": "4 min",
     "stock": 45
   },
   {
     "name": "Grapefruit Detox",
-    "description": "Tangy grapefruit with cucumber and mint for a refreshing detox experience.",
+    "description": "Tangy pink grapefruit with a touch of honey. Naturally detoxifying and refreshing.",
     "price": 85,
-    "originalPrice": null,
+    "originalPrice": 100,
     "category": "citrus-juices",
-    "image": "https://images.unsplash.com/photo-1559181567-c3190e4e1b20?w=500",
-    "ingredients": ["Grapefruit", "Cucumber", "Mint"],
-    "nutritionInfo": { "calories": 75, "protein": "0.9g", "carbs": "17g", "fiber": "2g" },
-    "tags": ["grapefruit", "detox", "tangy"],
+    "image": "https://images.unsplash.com/photo-1503023345310-bd7428a21f72?w=500",
+    "ingredients": [
+      "Pink Grapefruit",
+      "Honey",
+      "Mint"
+    ],
+    "nutritionInfo": {
+      "calories": 90,
+      "protein": "1.2g",
+      "carbs": "20g",
+      "fiber": "1g"
+    },
+    "tags": [
+      "grapefruit",
+      "detox",
+      "tangy"
+    ],
     "isBestseller": false,
     "isFeatured": false,
     "isAvailable": true,
     "rating": 4.5,
-    "reviewCount": 98,
+    "reviewCount": 134,
     "volume": "300ml",
     "prepTime": "5 min",
-    "stock": 25
+    "stock": 35
   },
   {
     "name": "Green Goddess",
-    "description": "The ultimate green detox — spinach, cucumber, celery, apple and lemon. Alkalizing and energizing.",
-    "price": 95,
-    "originalPrice": 115,
+    "description": "The ultimate green detox blend with spinach, cucumber, apple and ginger. Full of antioxidants.",
+    "price": 99,
+    "originalPrice": 120,
     "category": "green-juices",
-    "image": "https://images.unsplash.com/photo-1542857170-5c4e9b7e9b9b?w=500",
-    "ingredients": ["Spinach", "Cucumber", "Celery", "Apple", "Lemon", "Ginger"],
-    "nutritionInfo": { "calories": 85, "protein": "2.5g", "carbs": "18g", "fiber": "4g" },
-    "tags": ["green", "detox", "alkalizing"],
+    "image": "https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=500",
+    "ingredients": [
+      "Spinach",
+      "Cucumber",
+      "Apple",
+      "Ginger",
+      "Lemon"
+    ],
+    "nutritionInfo": {
+      "calories": 85,
+      "protein": "2.5g",
+      "carbs": "18g",
+      "fiber": "3g"
+    },
+    "tags": [
+      "green",
+      "detox",
+      "spinach",
+      "antioxidant"
+    ],
     "isBestseller": true,
     "isFeatured": true,
     "isAvailable": true,
     "rating": 4.8,
-    "reviewCount": 287,
-    "volume": "300ml",
+    "reviewCount": 312,
+    "volume": "350ml",
     "prepTime": "7 min",
-    "stock": 35
+    "stock": 40
   },
   {
-    "name": "Wheatgrass Shot",
-    "description": "Pure wheatgrass cold-pressed juice. Powerhouse of chlorophyll and enzymes.",
-    "price": 55,
+    "name": "Kale Power Blend",
+    "description": "Kale, celery, green apple and lemon. A nutrient-dense powerhouse for your morning.",
+    "price": 109,
     "originalPrice": null,
     "category": "green-juices",
-    "image": "https://images.unsplash.com/photo-1622597467836-f3e6e5e6b8d4?w=500",
-    "ingredients": ["Fresh Wheatgrass"],
-    "nutritionInfo": { "calories": 25, "protein": "1g", "carbs": "4g", "fiber": "2g" },
-    "tags": ["wheatgrass", "chlorophyll", "detox"],
+    "image": "https://images.unsplash.com/photo-1589740213535-8c95e3dcc0aa?w=500",
+    "ingredients": [
+      "Kale",
+      "Celery",
+      "Green Apple",
+      "Lemon",
+      "Cucumber"
+    ],
+    "nutritionInfo": {
+      "calories": 90,
+      "protein": "3g",
+      "carbs": "17g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "kale",
+      "power",
+      "green",
+      "healthy"
+    ],
     "isBestseller": false,
     "isFeatured": false,
     "isAvailable": true,
     "rating": 4.6,
-    "reviewCount": 156,
+    "reviewCount": 178,
+    "volume": "350ml",
+    "prepTime": "8 min",
+    "stock": 30
+  },
+  {
+    "name": "Wheatgrass Shot",
+    "description": "Pure cold-pressed wheatgrass. Concentrated nutrition in a single shot.",
+    "price": 59,
+    "originalPrice": 75,
+    "category": "green-juices",
+    "image": "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=500",
+    "ingredients": [
+      "Wheatgrass"
+    ],
+    "nutritionInfo": {
+      "calories": 25,
+      "protein": "1g",
+      "carbs": "4g",
+      "fiber": "1g"
+    },
+    "tags": [
+      "wheatgrass",
+      "shot",
+      "detox",
+      "chlorophyll"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.5,
+    "reviewCount": 89,
     "volume": "60ml",
     "prepTime": "3 min",
     "stock": 55
   },
   {
-    "name": "Kale Power Blend",
-    "description": "Nutrient-dense kale with green apple, cucumber and lemon. Packed with antioxidants.",
-    "price": 105,
-    "originalPrice": null,
-    "category": "green-juices",
-    "image": "https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=500",
-    "ingredients": ["Kale", "Green Apple", "Cucumber", "Lemon", "Ginger"],
-    "nutritionInfo": { "calories": 90, "protein": "2.8g", "carbs": "20g", "fiber": "3.5g" },
-    "tags": ["kale", "antioxidants", "nutrition"],
-    "isBestseller": false,
-    "isFeatured": false,
-    "isAvailable": true,
-    "rating": 4.7,
-    "reviewCount": 143,
-    "volume": "300ml",
-    "prepTime": "8 min",
-    "stock": 28
-  },
-  {
     "name": "Mixed Berry Blast",
-    "description": "A vibrant blend of strawberries, blueberries, raspberries and blackberries. Antioxidant powerhouse.",
-    "price": 115,
-    "originalPrice": 135,
+    "description": "A vibrant mix of strawberries, blueberries and raspberries. Packed with antioxidants.",
+    "price": 109,
+    "originalPrice": 130,
     "category": "berry-juices",
     "image": "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=500",
-    "ingredients": ["Strawberry", "Blueberry", "Raspberry", "Blackberry"],
-    "nutritionInfo": { "calories": 130, "protein": "1.5g", "carbs": "30g", "fiber": "5g" },
-    "tags": ["berry", "antioxidants", "colorful"],
+    "ingredients": [
+      "Strawberry",
+      "Blueberry",
+      "Raspberry",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 130,
+      "protein": "1.5g",
+      "carbs": "30g",
+      "fiber": "3.5g"
+    },
+    "tags": [
+      "berry",
+      "antioxidant",
+      "mixed",
+      "colourful"
+    ],
     "isBestseller": true,
-    "isFeatured": true,
-    "isAvailable": true,
-    "rating": 4.9,
-    "reviewCount": 398,
-    "volume": "250ml",
-    "prepTime": "7 min",
-    "stock": 42
-  },
-  {
-    "name": "Strawberry Lemonade",
-    "description": "Fresh strawberries blended with homemade lemonade. Sweet, tangy and refreshing.",
-    "price": 89,
-    "originalPrice": null,
-    "category": "berry-juices",
-    "image": "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=500",
-    "ingredients": ["Strawberry", "Lemon", "Mint"],
-    "nutritionInfo": { "calories": 115, "protein": "0.8g", "carbs": "26g", "fiber": "2g" },
-    "tags": ["strawberry", "lemonade", "refreshing"],
-    "isBestseller": false,
     "isFeatured": false,
     "isAvailable": true,
     "rating": 4.8,
     "reviewCount": 267,
     "volume": "300ml",
+    "prepTime": "6 min",
+    "stock": 35
+  },
+  {
+    "name": "Strawberry Lemonade",
+    "description": "Classic strawberry lemonade made fresh with no artificial flavours or preservatives.",
+    "price": 89,
+    "originalPrice": null,
+    "category": "berry-juices",
+    "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500",
+    "ingredients": [
+      "Strawberry",
+      "Lemon",
+      "Mint",
+      "Jaggery"
+    ],
+    "nutritionInfo": {
+      "calories": 110,
+      "protein": "0.8g",
+      "carbs": "26g",
+      "fiber": "1.5g"
+    },
+    "tags": [
+      "strawberry",
+      "lemonade",
+      "refreshing"
+    ],
+    "isBestseller": false,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 198,
+    "volume": "350ml",
     "prepTime": "5 min",
-    "stock": 38
+    "stock": 40
   },
   {
     "name": "Morning Thunder",
-    "description": "Concentrated energy shot with ginger, lemon, turmeric and cayenne. Kickstart your day!",
-    "price": 45,
-    "originalPrice": 60,
+    "description": "A bold blend of beet, carrot and ginger for a natural energy kick without caffeine.",
+    "price": 69,
+    "originalPrice": 85,
     "category": "energy-shots",
-    "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500",
-    "ingredients": ["Ginger", "Lemon", "Turmeric", "Cayenne", "Black Pepper"],
-    "nutritionInfo": { "calories": 20, "protein": "0.3g", "carbs": "4g", "fiber": "0.5g" },
-    "tags": ["energy", "ginger", "immunity"],
-    "isBestseller": true,
+    "image": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=500",
+    "ingredients": [
+      "Beetroot",
+      "Carrot",
+      "Ginger",
+      "Lemon"
+    ],
+    "nutritionInfo": {
+      "calories": 70,
+      "protein": "1g",
+      "carbs": "16g",
+      "fiber": "2g"
+    },
+    "tags": [
+      "energy",
+      "beet",
+      "ginger",
+      "morning"
+    ],
+    "isBestseller": false,
     "isFeatured": false,
     "isAvailable": true,
-    "rating": 4.8,
-    "reviewCount": 512,
-    "volume": "60ml",
-    "prepTime": "3 min",
-    "stock": 80
+    "rating": 4.6,
+    "reviewCount": 143,
+    "volume": "100ml",
+    "prepTime": "4 min",
+    "stock": 60
   },
   {
     "name": "Immunity Boost",
-    "description": "Triple immunity shot — amla, ginger and turmeric. Your daily health ritual.",
-    "price": 49,
+    "description": "Turmeric, amla and ginger triple shot. Your daily immunity in one sip.",
+    "price": 79,
     "originalPrice": null,
     "category": "energy-shots",
-    "image": "https://images.unsplash.com/photo-1617196034183-421b4040ed20?w=500",
-    "ingredients": ["Amla", "Ginger", "Turmeric", "Honey"],
-    "nutritionInfo": { "calories": 25, "protein": "0.4g", "carbs": "5g", "fiber": "0.3g" },
-    "tags": ["immunity", "amla", "turmeric"],
+    "image": "https://images.unsplash.com/photo-1607532941433-304659e8198a?w=500",
+    "ingredients": [
+      "Amla",
+      "Turmeric",
+      "Ginger",
+      "Black Pepper"
+    ],
+    "nutritionInfo": {
+      "calories": 45,
+      "protein": "0.5g",
+      "carbs": "10g",
+      "fiber": "1g"
+    },
+    "tags": [
+      "immunity",
+      "turmeric",
+      "amla",
+      "shot"
+    ],
     "isBestseller": true,
     "isFeatured": false,
     "isAvailable": true,
-    "rating": 4.7,
-    "reviewCount": 389,
-    "volume": "60ml",
-    "prepTime": "3 min",
-    "stock": 75
+    "rating": 4.9,
+    "reviewCount": 322,
+    "volume": "100ml",
+    "prepTime": "4 min",
+    "stock": 70
   },
   {
     "name": "Beetroot Detox",
-    "description": "Deep red beetroot with carrot, apple and ginger. Excellent for blood purification and liver health.",
-    "price": 99,
-    "originalPrice": 120,
+    "description": "Deep red beetroot with carrot, apple and lemon. Cleanses and energises.",
+    "price": 89,
+    "originalPrice": 105,
     "category": "detox-juices",
-    "image": "https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=500",
-    "ingredients": ["Beetroot", "Carrot", "Apple", "Ginger", "Lemon"],
-    "nutritionInfo": { "calories": 105, "protein": "2g", "carbs": "24g", "fiber": "4g" },
-    "tags": ["beetroot", "liver", "blood purifier"],
-    "isBestseller": true,
-    "isFeatured": true,
+    "image": "https://images.unsplash.com/photo-1570696516188-ade861b84a49?w=500",
+    "ingredients": [
+      "Beetroot",
+      "Carrot",
+      "Apple",
+      "Lemon",
+      "Ginger"
+    ],
+    "nutritionInfo": {
+      "calories": 95,
+      "protein": "1.8g",
+      "carbs": "22g",
+      "fiber": "2.5g"
+    },
+    "tags": [
+      "beetroot",
+      "detox",
+      "cleanse",
+      "red"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
     "isAvailable": true,
-    "rating": 4.8,
-    "reviewCount": 234,
+    "rating": 4.7,
+    "reviewCount": 156,
     "volume": "300ml",
-    "prepTime": "8 min",
-    "stock": 33
+    "prepTime": "6 min",
+    "stock": 35
   },
   {
     "name": "Charcoal Cleanse",
-    "description": "Activated charcoal with coconut water and lemon. Deep cellular cleansing detox drink.",
-    "price": 109,
-    "originalPrice": null,
+    "description": "Activated charcoal, coconut water and lemon for a deep internal cleanse.",
+    "price": 119,
+    "originalPrice": 140,
     "category": "detox-juices",
-    "image": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=500",
-    "ingredients": ["Activated Charcoal", "Coconut Water", "Lemon", "Mint"],
-    "nutritionInfo": { "calories": 40, "protein": "0.5g", "carbs": "9g", "fiber": "1g" },
-    "tags": ["detox", "cleanse", "charcoal"],
+    "image": "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=500",
+    "ingredients": [
+      "Activated Charcoal",
+      "Coconut Water",
+      "Lemon",
+      "Mint"
+    ],
+    "nutritionInfo": {
+      "calories": 40,
+      "protein": "0g",
+      "carbs": "8g",
+      "fiber": "0g"
+    },
+    "tags": [
+      "charcoal",
+      "detox",
+      "cleanse",
+      "black"
+    ],
     "isBestseller": false,
-    "isFeatured": false,
-    "isAvailable": true,
-    "rating": 4.5,
-    "reviewCount": 178,
-    "volume": "250ml",
-    "prepTime": "5 min",
-    "stock": 20
-  },
-  {
-    "name": "Rainbow Fruit Bowl",
-    "description": "Seasonal fruits hand-cut and served fresh. No sugar added, drizzled with honey and mint.",
-    "price": 129,
-    "originalPrice": 155,
-    "category": "fruit-salad",
-    "image": "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=500",
-    "ingredients": ["Seasonal Fruits", "Honey", "Mint", "Lemon Zest"],
-    "nutritionInfo": { "calories": 180, "protein": "2.5g", "carbs": "42g", "fiber": "6g" },
-    "tags": ["fruit salad", "healthy", "fresh"],
-    "isBestseller": true,
     "isFeatured": true,
     "isAvailable": true,
-    "rating": 4.9,
-    "reviewCount": 345,
-    "volume": "300g",
-    "prepTime": "10 min",
-    "stock": 30
-  },
-  {
-    "name": "Tropical Paradise Bowl",
-    "description": "Mango, pineapple, papaya and kiwi. A taste of the tropics in every bite.",
-    "price": 149,
-    "originalPrice": null,
-    "category": "fruit-salad",
-    "image": "https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?w=500",
-    "ingredients": ["Mango", "Pineapple", "Papaya", "Kiwi", "Coconut Flakes"],
-    "nutritionInfo": { "calories": 200, "protein": "3g", "carbs": "46g", "fiber": "7g" },
-    "tags": ["tropical", "fruit bowl", "exotic"],
-    "isBestseller": false,
-    "isFeatured": false,
-    "isAvailable": true,
-    "rating": 4.8,
-    "reviewCount": 223,
-    "volume": "350g",
-    "prepTime": "12 min",
+    "rating": 4.4,
+    "reviewCount": 98,
+    "volume": "250ml",
+    "prepTime": "5 min",
     "stock": 25
   },
   {
     "name": "Golden Turmeric Latte",
-    "description": "Our signature golden turmeric blend with oat milk and cardamom. Anti-inflammatory wonder.",
-    "price": 119,
-    "originalPrice": 140,
+    "description": "Warm turmeric, ginger and coconut milk blend. Anti-inflammatory and comforting.",
+    "price": 129,
+    "originalPrice": 150,
     "category": "special-juices",
-    "image": "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?w=500",
-    "ingredients": ["Turmeric", "Oat Milk", "Cardamom", "Ginger", "Black Pepper"],
-    "nutritionInfo": { "calories": 150, "protein": "3g", "carbs": "22g", "fiber": "1g" },
-    "tags": ["golden milk", "anti-inflammatory", "signature"],
+    "image": "https://images.unsplash.com/photo-1584932583785-6f47e4cb1a33?w=500",
+    "ingredients": [
+      "Turmeric",
+      "Ginger",
+      "Coconut Milk",
+      "Black Pepper",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 160,
+      "protein": "2g",
+      "carbs": "18g",
+      "fiber": "1g"
+    },
+    "tags": [
+      "turmeric",
+      "latte",
+      "golden",
+      "anti-inflammatory"
+    ],
     "isBestseller": true,
     "isFeatured": true,
     "isAvailable": true,
     "rating": 4.9,
-    "reviewCount": 567,
+    "reviewCount": 389,
     "volume": "250ml",
     "prepTime": "8 min",
     "stock": 45
   },
   {
     "name": "Dragon Fruit Elixir",
-    "description": "Exotic pink dragon fruit with coconut water and vanilla. Stunning to look at, divine to drink.",
-    "price": 135,
-    "originalPrice": null,
+    "description": "Vibrant pink dragon fruit with coconut water and chia seeds. Exotic and energising.",
+    "price": 149,
+    "originalPrice": 175,
     "category": "special-juices",
-    "image": "https://images.unsplash.com/photo-1563246810-6571b3d44b1e?w=500",
-    "ingredients": ["Dragon Fruit", "Coconut Water", "Vanilla", "Lime"],
-    "nutritionInfo": { "calories": 140, "protein": "2g", "carbs": "32g", "fiber": "3g" },
-    "tags": ["dragon fruit", "exotic", "instagram worthy"],
+    "image": "https://images.unsplash.com/photo-1526318472351-c75fcf070305?w=500",
+    "ingredients": [
+      "Dragon Fruit",
+      "Coconut Water",
+      "Chia Seeds",
+      "Lime"
+    ],
+    "nutritionInfo": {
+      "calories": 140,
+      "protein": "2.5g",
+      "carbs": "30g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "dragon fruit",
+      "exotic",
+      "pink",
+      "chia"
+    ],
     "isBestseller": false,
     "isFeatured": true,
     "isAvailable": true,
     "rating": 4.8,
-    "reviewCount": 312,
+    "reviewCount": 211,
     "volume": "300ml",
     "prepTime": "7 min",
+    "stock": 30
+  },
+  {
+    "name": "Rainbow Fruit Bowl",
+    "description": "Seasonal fresh fruits with a honey-lime drizzle. Colourful, sweet and nutritious.",
+    "price": 149,
+    "originalPrice": 180,
+    "category": "fruit-salad",
+    "image": "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=500",
+    "ingredients": [
+      "Mango",
+      "Pineapple",
+      "Watermelon",
+      "Grapes",
+      "Kiwi",
+      "Honey",
+      "Lime"
+    ],
+    "nutritionInfo": {
+      "calories": 180,
+      "protein": "2g",
+      "carbs": "42g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "fruit",
+      "bowl",
+      "colourful",
+      "fresh"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 287,
+    "volume": "350gms",
+    "prepTime": "8 min",
+    "stock": 30
+  },
+  {
+    "name": "Tropical Paradise Bowl",
+    "description": "Papaya, pineapple and coconut flakes with a squeeze of lime. Island vibes in a bowl.",
+    "price": 159,
+    "originalPrice": null,
+    "category": "fruit-salad",
+    "image": "https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?w=500",
+    "ingredients": [
+      "Papaya",
+      "Pineapple",
+      "Coconut Flakes",
+      "Lime",
+      "Mint"
+    ],
+    "nutritionInfo": {
+      "calories": 190,
+      "protein": "1.8g",
+      "carbs": "44g",
+      "fiber": "4.5g"
+    },
+    "tags": [
+      "tropical",
+      "papaya",
+      "coconut",
+      "paradise"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 165,
+    "volume": "300gms",
+    "prepTime": "7 min",
+    "stock": 25
+  },
+  {
+    "name": "Berry Bliss Bowl",
+    "description": "Fresh strawberries, blueberries and raspberries tossed with a mint-honey dressing.",
+    "price": 169,
+    "originalPrice": 199,
+    "category": "fruit-salad",
+    "image": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500",
+    "ingredients": [
+      "Strawberry",
+      "Blueberry",
+      "Raspberry",
+      "Mint",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 160,
+      "protein": "2g",
+      "carbs": "36g",
+      "fiber": "6g"
+    },
+    "tags": [
+      "berry",
+      "bliss",
+      "antioxidant",
+      "fresh"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 143,
+    "volume": "300gms",
+    "prepTime": "6 min",
+    "stock": 28
+  },
+  {
+    "name": "Quinoa Power Bowl",
+    "description": "Protein-packed quinoa with roasted veggies, avocado and lemon tahini dressing.",
+    "price": 199,
+    "originalPrice": 239,
+    "category": "bowls",
+    "image": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500",
+    "ingredients": [
+      "Quinoa",
+      "Avocado",
+      "Cherry Tomato",
+      "Cucumber",
+      "Tahini",
+      "Lemon"
+    ],
+    "nutritionInfo": {
+      "calories": 380,
+      "protein": "14g",
+      "carbs": "42g",
+      "fiber": "9g"
+    },
+    "tags": [
+      "quinoa",
+      "protein",
+      "bowl",
+      "vegan"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 198,
+    "volume": "400gms",
+    "prepTime": "12 min",
+    "stock": 25
+  },
+  {
+    "name": "Greek Salad Bowl",
+    "description": "Classic Greek salad with feta, olives, cucumbers, tomatoes and oregano dressing.",
+    "price": 179,
+    "originalPrice": null,
+    "category": "bowls",
+    "image": "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=500",
+    "ingredients": [
+      "Feta Cheese",
+      "Black Olives",
+      "Cucumber",
+      "Tomato",
+      "Red Onion",
+      "Oregano"
+    ],
+    "nutritionInfo": {
+      "calories": 290,
+      "protein": "9g",
+      "carbs": "18g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "greek",
+      "feta",
+      "mediterranean",
+      "fresh"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 132,
+    "volume": "350gms",
+    "prepTime": "10 min",
+    "stock": 30
+  },
+  {
+    "name": "Avocado Toast Sandwich",
+    "description": "Multigrain bread loaded with smashed avocado, cherry tomatoes and microgreens.",
+    "price": 149,
+    "originalPrice": 179,
+    "category": "veg-sandwiches",
+    "image": "https://images.unsplash.com/photo-1525351484163-7529414344d8?w=500",
+    "ingredients": [
+      "Multigrain Bread",
+      "Avocado",
+      "Cherry Tomato",
+      "Microgreens",
+      "Olive Oil",
+      "Chilli Flakes"
+    ],
+    "nutritionInfo": {
+      "calories": 320,
+      "protein": "8g",
+      "carbs": "36g",
+      "fiber": "7g"
+    },
+    "tags": [
+      "avocado",
+      "toast",
+      "veg",
+      "healthy"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 223,
+    "volume": "200gms",
+    "prepTime": "8 min",
+    "stock": 35
+  },
+  {
+    "name": "Hummus Veggie Club",
+    "description": "Whole wheat bread with hummus, roasted bell peppers, spinach and sun-dried tomatoes.",
+    "price": 139,
+    "originalPrice": null,
+    "category": "veg-sandwiches",
+    "image": "https://images.unsplash.com/photo-1539252554453-80ab65ce3586?w=500",
+    "ingredients": [
+      "Whole Wheat Bread",
+      "Hummus",
+      "Bell Pepper",
+      "Spinach",
+      "Sun-dried Tomato"
+    ],
+    "nutritionInfo": {
+      "calories": 290,
+      "protein": "10g",
+      "carbs": "38g",
+      "fiber": "6g"
+    },
+    "tags": [
+      "hummus",
+      "veggie",
+      "club",
+      "whole wheat"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 156,
+    "volume": "220gms",
+    "prepTime": "7 min",
+    "stock": 30
+  },
+  {
+    "name": "Caprese Ciabatta",
+    "description": "Fresh mozzarella, ripe tomatoes and basil pesto on a toasted ciabatta roll.",
+    "price": 159,
+    "originalPrice": 189,
+    "category": "veg-sandwiches",
+    "image": "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500",
+    "ingredients": [
+      "Ciabatta",
+      "Fresh Mozzarella",
+      "Tomato",
+      "Basil Pesto",
+      "Olive Oil"
+    ],
+    "nutritionInfo": {
+      "calories": 360,
+      "protein": "14g",
+      "carbs": "34g",
+      "fiber": "2g"
+    },
+    "tags": [
+      "caprese",
+      "mozzarella",
+      "italian",
+      "ciabatta"
+    ],
+    "isBestseller": false,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 187,
+    "volume": "210gms",
+    "prepTime": "8 min",
+    "stock": 28
+  },
+  {
+    "name": "Grilled Paneer Tikka Sandwich",
+    "description": "Juicy grilled paneer tikka with mint chutney and pickled onions in a soft bun.",
+    "price": 169,
+    "originalPrice": 199,
+    "category": "grilled",
+    "image": "https://images.unsplash.com/photo-1553909489-cd47e0907980?w=500",
+    "ingredients": [
+      "Paneer",
+      "Tikka Masala",
+      "Mint Chutney",
+      "Onion",
+      "Soft Bun"
+    ],
+    "nutritionInfo": {
+      "calories": 420,
+      "protein": "22g",
+      "carbs": "38g",
+      "fiber": "3g"
+    },
+    "tags": [
+      "paneer",
+      "tikka",
+      "grilled",
+      "indian"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 312,
+    "volume": "240gms",
+    "prepTime": "12 min",
+    "stock": 30
+  },
+  {
+    "name": "Grilled Corn & Cheese",
+    "description": "Grilled sweet corn, jalapenos and melted cheddar on sourdough. Smoky and satisfying.",
+    "price": 149,
+    "originalPrice": null,
+    "category": "grilled",
+    "image": "https://images.unsplash.com/photo-1528736235302-52922df5c122?w=500",
+    "ingredients": [
+      "Sourdough",
+      "Sweet Corn",
+      "Cheddar",
+      "Jalapeno",
+      "Butter"
+    ],
+    "nutritionInfo": {
+      "calories": 390,
+      "protein": "14g",
+      "carbs": "44g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "corn",
+      "cheese",
+      "grilled",
+      "cheddar"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 178,
+    "volume": "220gms",
+    "prepTime": "10 min",
+    "stock": 28
+  },
+  {
+    "name": "Mediterranean Veggie Wrap",
+    "description": "Whole wheat tortilla stuffed with falafel, tzatziki, lettuce and roasted veggies.",
+    "price": 159,
+    "originalPrice": 189,
+    "category": "wraps",
+    "image": "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500",
+    "ingredients": [
+      "Whole Wheat Tortilla",
+      "Falafel",
+      "Tzatziki",
+      "Lettuce",
+      "Roasted Pepper",
+      "Olives"
+    ],
+    "nutritionInfo": {
+      "calories": 380,
+      "protein": "12g",
+      "carbs": "48g",
+      "fiber": "8g"
+    },
+    "tags": [
+      "mediterranean",
+      "falafel",
+      "wrap",
+      "vegan"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 154,
+    "volume": "250gms",
+    "prepTime": "10 min",
+    "stock": 25
+  },
+  {
+    "name": "Spicy Paneer Wrap",
+    "description": "Crispy paneer with sriracha mayo, shredded cabbage and pickled carrots in a spinach wrap.",
+    "price": 169,
+    "originalPrice": null,
+    "category": "wraps",
+    "image": "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=500",
+    "ingredients": [
+      "Spinach Tortilla",
+      "Paneer",
+      "Sriracha Mayo",
+      "Cabbage",
+      "Carrot",
+      "Coriander"
+    ],
+    "nutritionInfo": {
+      "calories": 410,
+      "protein": "18g",
+      "carbs": "42g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "paneer",
+      "spicy",
+      "wrap",
+      "sriracha"
+    ],
+    "isBestseller": true,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 201,
+    "volume": "260gms",
+    "prepTime": "10 min",
+    "stock": 28
+  },
+  {
+    "name": "Hummus & Roasted Veggie Wrap",
+    "description": "A hearty wrap loaded with roasted zucchini, bell pepper, hummus and fresh herbs.",
+    "price": 149,
+    "originalPrice": 175,
+    "category": "wraps",
+    "image": "https://images.unsplash.com/photo-1600335895229-6e75511892c8?w=500",
+    "ingredients": [
+      "Tortilla",
+      "Hummus",
+      "Zucchini",
+      "Bell Pepper",
+      "Red Onion",
+      "Parsley"
+    ],
+    "nutritionInfo": {
+      "calories": 350,
+      "protein": "10g",
+      "carbs": "46g",
+      "fiber": "7g"
+    },
+    "tags": [
+      "hummus",
+      "roasted",
+      "wrap",
+      "healthy"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 122,
+    "volume": "240gms",
+    "prepTime": "9 min",
     "stock": 22
+  },
+  {
+    "name": "Peanut Butter Protein Shake",
+    "description": "Banana, peanut butter and oats blended with almond milk. The ultimate post-workout shake.",
+    "price": 179,
+    "originalPrice": 210,
+    "category": "protein-smoothies",
+    "image": "https://images.unsplash.com/photo-1570696516188-ade861b84a49?w=500",
+    "ingredients": [
+      "Banana",
+      "Peanut Butter",
+      "Oats",
+      "Almond Milk",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 420,
+      "protein": "18g",
+      "carbs": "52g",
+      "fiber": "6g"
+    },
+    "tags": [
+      "protein",
+      "peanut butter",
+      "banana",
+      "workout"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 298,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 40
+  },
+  {
+    "name": "Chocolate Whey Blast",
+    "description": "Dark cocoa, banana and whey protein in a thick shake. Decadent yet nutritious.",
+    "price": 199,
+    "originalPrice": 235,
+    "category": "protein-smoothies",
+    "image": "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=500",
+    "ingredients": [
+      "Cocoa Powder",
+      "Banana",
+      "Whey Protein",
+      "Almond Milk",
+      "Dates"
+    ],
+    "nutritionInfo": {
+      "calories": 380,
+      "protein": "24g",
+      "carbs": "44g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "chocolate",
+      "protein",
+      "whey",
+      "shake"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 176,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 35
+  },
+  {
+    "name": "Almond Date Recovery",
+    "description": "Soaked almonds, medjool dates and oats blended smooth. Natural muscle recovery.",
+    "price": 189,
+    "originalPrice": null,
+    "category": "protein-smoothies",
+    "image": "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=500",
+    "ingredients": [
+      "Almond",
+      "Medjool Dates",
+      "Oats",
+      "Banana",
+      "Almond Milk"
+    ],
+    "nutritionInfo": {
+      "calories": 350,
+      "protein": "12g",
+      "carbs": "54g",
+      "fiber": "7g"
+    },
+    "tags": [
+      "almond",
+      "dates",
+      "recovery",
+      "natural"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 134,
+    "volume": "350ml",
+    "prepTime": "6 min",
+    "stock": 30
+  },
+  {
+    "name": "Mango Passion Smoothie",
+    "description": "Thick mango and passion fruit smoothie with coconut milk. Tropical and creamy.",
+    "price": 159,
+    "originalPrice": 189,
+    "category": "fruit-smoothies",
+    "image": "https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=500",
+    "ingredients": [
+      "Mango",
+      "Passion Fruit",
+      "Coconut Milk",
+      "Banana",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 280,
+      "protein": "3g",
+      "carbs": "58g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "mango",
+      "passion fruit",
+      "tropical",
+      "creamy"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 267,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 40
+  },
+  {
+    "name": "Strawberry Banana Smoothie",
+    "description": "The all-time classic. Fresh strawberries and ripe bananas blended with yogurt.",
+    "price": 139,
+    "originalPrice": null,
+    "category": "fruit-smoothies",
+    "image": "https://images.unsplash.com/photo-1553530979-fbb9e4aee36f?w=500",
+    "ingredients": [
+      "Strawberry",
+      "Banana",
+      "Greek Yogurt",
+      "Honey",
+      "Vanilla"
+    ],
+    "nutritionInfo": {
+      "calories": 240,
+      "protein": "7g",
+      "carbs": "48g",
+      "fiber": "3g"
+    },
+    "tags": [
+      "strawberry",
+      "banana",
+      "classic",
+      "yogurt"
+    ],
+    "isBestseller": true,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 312,
+    "volume": "400ml",
+    "prepTime": "4 min",
+    "stock": 45
+  },
+  {
+    "name": "Peach Ginger Smoothie",
+    "description": "Sweet peach with a warming ginger kick. Digestion-friendly and delicious.",
+    "price": 149,
+    "originalPrice": 175,
+    "category": "fruit-smoothies",
+    "image": "https://images.unsplash.com/photo-1501959915551-4e8d30928317?w=500",
+    "ingredients": [
+      "Peach",
+      "Ginger",
+      "Orange Juice",
+      "Banana",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 210,
+      "protein": "2g",
+      "carbs": "50g",
+      "fiber": "3.5g"
+    },
+    "tags": [
+      "peach",
+      "ginger",
+      "digestion",
+      "sweet"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 145,
+    "volume": "350ml",
+    "prepTime": "5 min",
+    "stock": 32
+  },
+  {
+    "name": "Spinach Apple Smoothie",
+    "description": "Baby spinach, apple and banana blended with almond milk. Tastes like fruit, packed like greens.",
+    "price": 159,
+    "originalPrice": 185,
+    "category": "green-smoothies",
+    "image": "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500",
+    "ingredients": [
+      "Baby Spinach",
+      "Apple",
+      "Banana",
+      "Almond Milk",
+      "Lime"
+    ],
+    "nutritionInfo": {
+      "calories": 220,
+      "protein": "5g",
+      "carbs": "44g",
+      "fiber": "6g"
+    },
+    "tags": [
+      "spinach",
+      "apple",
+      "green",
+      "healthy"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 178,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 35
+  },
+  {
+    "name": "Avocado Matcha Smoothie",
+    "description": "Creamy avocado with ceremonial matcha and oat milk. Antioxidant-rich and filling.",
+    "price": 189,
+    "originalPrice": 219,
+    "category": "green-smoothies",
+    "image": "https://images.unsplash.com/photo-1600718374662-0483d2b9da44?w=500",
+    "ingredients": [
+      "Avocado",
+      "Matcha Powder",
+      "Oat Milk",
+      "Banana",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 310,
+      "protein": "6g",
+      "carbs": "36g",
+      "fiber": "8g"
+    },
+    "tags": [
+      "avocado",
+      "matcha",
+      "green",
+      "antioxidant"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 234,
+    "volume": "350ml",
+    "prepTime": "6 min",
+    "stock": 30
+  },
+  {
+    "name": "Cucumber Mint Cooler Smoothie",
+    "description": "Hydrating cucumber, mint and yogurt smoothie. Light, refreshing and cooling.",
+    "price": 139,
+    "originalPrice": null,
+    "category": "green-smoothies",
+    "image": "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=500",
+    "ingredients": [
+      "Cucumber",
+      "Mint",
+      "Greek Yogurt",
+      "Lime",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 150,
+      "protein": "5g",
+      "carbs": "26g",
+      "fiber": "2g"
+    },
+    "tags": [
+      "cucumber",
+      "mint",
+      "cooling",
+      "yogurt"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 143,
+    "volume": "350ml",
+    "prepTime": "4 min",
+    "stock": 38
+  },
+  {
+    "name": "Pesto Veggie Delight",
+    "description": "Ciabatta loaded with basil pesto, grilled zucchini, roasted peppers, and fresh rocket leaves.",
+    "price": 149,
+    "originalPrice": 175,
+    "category": "veg-sandwiches",
+    "image": "https://images.unsplash.com/photo-1481070414801-51fd732d7184?w=500",
+    "ingredients": [
+      "Ciabatta",
+      "Basil Pesto",
+      "Zucchini",
+      "Roasted Peppers",
+      "Rocket Leaves",
+      "Parmesan"
+    ],
+    "nutritionInfo": {
+      "calories": 310,
+      "protein": "10g",
+      "carbs": "34g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "pesto",
+      "veggie",
+      "ciabatta",
+      "italian"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 134,
+    "volume": "210gms",
+    "prepTime": "8 min",
+    "stock": 28
+  },
+  {
+    "name": "Mushroom Swiss Melt",
+    "description": "Sauteed mushrooms with Swiss cheese and caramelized onions on toasted sourdough.",
+    "price": 159,
+    "originalPrice": null,
+    "category": "veg-sandwiches",
+    "image": "https://images.unsplash.com/photo-1551782450-a2132b4ba21d?w=500",
+    "ingredients": [
+      "Sourdough",
+      "Button Mushrooms",
+      "Swiss Cheese",
+      "Caramelized Onion",
+      "Thyme",
+      "Butter"
+    ],
+    "nutritionInfo": {
+      "calories": 370,
+      "protein": "14g",
+      "carbs": "38g",
+      "fiber": "3g"
+    },
+    "tags": [
+      "mushroom",
+      "swiss",
+      "melt",
+      "cheese"
+    ],
+    "isBestseller": true,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 178,
+    "volume": "220gms",
+    "prepTime": "10 min",
+    "stock": 25
+  },
+  {
+    "name": "Egg & Spinach Breakfast Sandwich",
+    "description": "Fluffy scrambled eggs with baby spinach, cheddar and sriracha on a toasted brioche bun.",
+    "price": 139,
+    "originalPrice": 165,
+    "category": "veg-sandwiches",
+    "image": "https://images.unsplash.com/photo-1550507992-eb63ffee0847?w=500",
+    "ingredients": [
+      "Brioche Bun",
+      "Egg",
+      "Baby Spinach",
+      "Cheddar",
+      "Sriracha",
+      "Butter"
+    ],
+    "nutritionInfo": {
+      "calories": 390,
+      "protein": "18g",
+      "carbs": "32g",
+      "fiber": "2g"
+    },
+    "tags": [
+      "egg",
+      "breakfast",
+      "spinach",
+      "brioche"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 256,
+    "volume": "200gms",
+    "prepTime": "8 min",
+    "stock": 35
+  },
+  {
+    "name": "Grilled BBQ Veggie Sandwich",
+    "description": "BBQ-glazed grilled portobello, red onion, and coleslaw in a brioche bun. Smoky and satisfying.",
+    "price": 159,
+    "originalPrice": 189,
+    "category": "grilled",
+    "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500",
+    "ingredients": [
+      "Brioche Bun",
+      "Portobello Mushroom",
+      "BBQ Sauce",
+      "Red Onion",
+      "Coleslaw",
+      "Lettuce"
+    ],
+    "nutritionInfo": {
+      "calories": 400,
+      "protein": "12g",
+      "carbs": "52g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "bbq",
+      "grilled",
+      "portobello",
+      "smoky"
+    ],
+    "isBestseller": false,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 167,
+    "volume": "250gms",
+    "prepTime": "12 min",
+    "stock": 25
+  },
+  {
+    "name": "Grilled Halloumi & Veggie",
+    "description": "Golden grilled halloumi with roasted tomatoes, olive tapenade and fresh basil on focaccia.",
+    "price": 179,
+    "originalPrice": 210,
+    "category": "grilled",
+    "image": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?w=500",
+    "ingredients": [
+      "Focaccia",
+      "Halloumi",
+      "Roasted Tomato",
+      "Olive Tapenade",
+      "Fresh Basil",
+      "Olive Oil"
+    ],
+    "nutritionInfo": {
+      "calories": 430,
+      "protein": "18g",
+      "carbs": "40g",
+      "fiber": "3g"
+    },
+    "tags": [
+      "halloumi",
+      "grilled",
+      "focaccia",
+      "mediterranean"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 221,
+    "volume": "240gms",
+    "prepTime": "12 min",
+    "stock": 22
+  },
+  {
+    "name": "Spicy Tofu Grilled Sandwich",
+    "description": "Crispy grilled tofu marinated in chilli-garlic sauce with shredded cabbage and pickled daikon.",
+    "price": 149,
+    "originalPrice": null,
+    "category": "grilled",
+    "image": "https://images.unsplash.com/photo-1540914124281-342587941389?w=500",
+    "ingredients": [
+      "Whole Wheat Bun",
+      "Firm Tofu",
+      "Chilli Garlic Sauce",
+      "Cabbage",
+      "Pickled Daikon",
+      "Sesame"
+    ],
+    "nutritionInfo": {
+      "calories": 350,
+      "protein": "16g",
+      "carbs": "38g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "tofu",
+      "spicy",
+      "grilled",
+      "asian"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 143,
+    "volume": "230gms",
+    "prepTime": "12 min",
+    "stock": 26
+  },
+  {
+    "name": "Thai Peanut Veggie Wrap",
+    "description": "Rice paper wrap with edamame, avocado, cucumber, and a creamy Thai peanut dipping sauce.",
+    "price": 159,
+    "originalPrice": 185,
+    "category": "wraps",
+    "image": "https://images.unsplash.com/photo-1562802378-063ec186a863?w=500",
+    "ingredients": [
+      "Rice Paper",
+      "Edamame",
+      "Avocado",
+      "Cucumber",
+      "Carrot",
+      "Thai Peanut Sauce",
+      "Coriander"
+    ],
+    "nutritionInfo": {
+      "calories": 340,
+      "protein": "11g",
+      "carbs": "44g",
+      "fiber": "8g"
+    },
+    "tags": [
+      "thai",
+      "peanut",
+      "rice paper",
+      "fresh"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 198,
+    "volume": "260gms",
+    "prepTime": "10 min",
+    "stock": 28
+  },
+  {
+    "name": "Caesar Salad Wrap",
+    "description": "Crispy romaine, homemade Caesar dressing, croutons and parmesan folded in a herb tortilla.",
+    "price": 149,
+    "originalPrice": 175,
+    "category": "wraps",
+    "image": "https://images.unsplash.com/photo-1604382354936-07c5d9983bd3?w=500",
+    "ingredients": [
+      "Herb Tortilla",
+      "Romaine Lettuce",
+      "Caesar Dressing",
+      "Croutons",
+      "Parmesan",
+      "Lemon"
+    ],
+    "nutritionInfo": {
+      "calories": 360,
+      "protein": "12g",
+      "carbs": "40g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "caesar",
+      "salad",
+      "wrap",
+      "crispy"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 165,
+    "volume": "240gms",
+    "prepTime": "8 min",
+    "stock": 30
+  },
+  {
+    "name": "Breakfast Burrito Wrap",
+    "description": "Scrambled eggs, black beans, salsa, guacamole and cheddar in a large warm flour tortilla.",
+    "price": 169,
+    "originalPrice": null,
+    "category": "wraps",
+    "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500",
+    "ingredients": [
+      "Flour Tortilla",
+      "Scrambled Egg",
+      "Black Beans",
+      "Salsa",
+      "Guacamole",
+      "Cheddar",
+      "Coriander"
+    ],
+    "nutritionInfo": {
+      "calories": 490,
+      "protein": "22g",
+      "carbs": "54g",
+      "fiber": "9g"
+    },
+    "tags": [
+      "breakfast",
+      "burrito",
+      "eggs",
+      "mexican"
+    ],
+    "isBestseller": true,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 287,
+    "volume": "280gms",
+    "prepTime": "10 min",
+    "stock": 30
+  },
+  {
+    "name": "Banana Oat Protein Smoothie",
+    "description": "Ripe banana, rolled oats, vanilla protein powder and cinnamon. Perfect morning fuel.",
+    "price": 169,
+    "originalPrice": 199,
+    "category": "protein-smoothies",
+    "image": "https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=500",
+    "ingredients": [
+      "Banana",
+      "Rolled Oats",
+      "Vanilla Protein",
+      "Almond Milk",
+      "Cinnamon",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 360,
+      "protein": "22g",
+      "carbs": "50g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "banana",
+      "oat",
+      "protein",
+      "breakfast"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 312,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 40
+  },
+  {
+    "name": "Coffee Protein Shake",
+    "description": "Cold brew coffee, whey protein, coconut milk and a hint of dark chocolate. Pre-workout perfection.",
+    "price": 199,
+    "originalPrice": 230,
+    "category": "protein-smoothies",
+    "image": "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500",
+    "ingredients": [
+      "Cold Brew Coffee",
+      "Whey Protein",
+      "Coconut Milk",
+      "Dark Cocoa",
+      "Banana"
+    ],
+    "nutritionInfo": {
+      "calories": 310,
+      "protein": "26g",
+      "carbs": "32g",
+      "fiber": "2g"
+    },
+    "tags": [
+      "coffee",
+      "protein",
+      "preworkout",
+      "chocolate"
+    ],
+    "isBestseller": false,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 189,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 35
+  },
+  {
+    "name": "Greek Yogurt Berry Protein",
+    "description": "Thick Greek yogurt blended with mixed berries and chia seeds. High protein, low fat.",
+    "price": 179,
+    "originalPrice": null,
+    "category": "protein-smoothies",
+    "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500",
+    "ingredients": [
+      "Greek Yogurt",
+      "Mixed Berries",
+      "Chia Seeds",
+      "Honey",
+      "Vanilla"
+    ],
+    "nutritionInfo": {
+      "calories": 280,
+      "protein": "20g",
+      "carbs": "36g",
+      "fiber": "6g"
+    },
+    "tags": [
+      "greek yogurt",
+      "berry",
+      "chia",
+      "high protein"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 156,
+    "volume": "350ml",
+    "prepTime": "4 min",
+    "stock": 38
+  },
+  {
+    "name": "Pineapple Coconut Smoothie",
+    "description": "Fresh pineapple, coconut cream and lime blended into a thick tropical shake.",
+    "price": 149,
+    "originalPrice": 175,
+    "category": "fruit-smoothies",
+    "image": "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=500",
+    "ingredients": [
+      "Pineapple",
+      "Coconut Cream",
+      "Lime",
+      "Banana",
+      "Ice"
+    ],
+    "nutritionInfo": {
+      "calories": 250,
+      "protein": "2g",
+      "carbs": "54g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "pineapple",
+      "coconut",
+      "tropical",
+      "creamy"
+    ],
+    "isBestseller": false,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 198,
+    "volume": "400ml",
+    "prepTime": "4 min",
+    "stock": 40
+  },
+  {
+    "name": "Papaya Lime Smoothie",
+    "description": "Ripe papaya with lime, ginger and coconut water. Digestive-friendly and refreshing.",
+    "price": 139,
+    "originalPrice": null,
+    "category": "fruit-smoothies",
+    "image": "https://images.unsplash.com/photo-1546171753-97d7676e4602?w=500",
+    "ingredients": [
+      "Papaya",
+      "Lime",
+      "Ginger",
+      "Coconut Water",
+      "Honey"
+    ],
+    "nutritionInfo": {
+      "calories": 180,
+      "protein": "1.5g",
+      "carbs": "42g",
+      "fiber": "3g"
+    },
+    "tags": [
+      "papaya",
+      "lime",
+      "digestion",
+      "tropical"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.6,
+    "reviewCount": 132,
+    "volume": "350ml",
+    "prepTime": "4 min",
+    "stock": 32
+  },
+  {
+    "name": "Watermelon Mint Slush",
+    "description": "Frozen watermelon chunks blended with fresh mint and lime. The ultimate summer smoothie.",
+    "price": 129,
+    "originalPrice": 155,
+    "category": "fruit-smoothies",
+    "image": "https://images.unsplash.com/photo-1497534446932-c925b458314e?w=500",
+    "ingredients": [
+      "Watermelon",
+      "Fresh Mint",
+      "Lime",
+      "Coconut Water"
+    ],
+    "nutritionInfo": {
+      "calories": 140,
+      "protein": "1g",
+      "carbs": "34g",
+      "fiber": "1.5g"
+    },
+    "tags": [
+      "watermelon",
+      "mint",
+      "slush",
+      "summer"
+    ],
+    "isBestseller": true,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.9,
+    "reviewCount": 234,
+    "volume": "400ml",
+    "prepTime": "4 min",
+    "stock": 45
+  },
+  {
+    "name": "Tropical Green Smoothie",
+    "description": "Kale, mango, pineapple and coconut water. Greens that taste like a vacation.",
+    "price": 159,
+    "originalPrice": 185,
+    "category": "green-smoothies",
+    "image": "https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=500",
+    "ingredients": [
+      "Kale",
+      "Mango",
+      "Pineapple",
+      "Coconut Water",
+      "Lime",
+      "Ginger"
+    ],
+    "nutritionInfo": {
+      "calories": 210,
+      "protein": "4g",
+      "carbs": "48g",
+      "fiber": "5g"
+    },
+    "tags": [
+      "tropical",
+      "green",
+      "kale",
+      "mango"
+    ],
+    "isBestseller": true,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.8,
+    "reviewCount": 221,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 35
+  },
+  {
+    "name": "Celery Detox Smoothie",
+    "description": "Pure celery juice blended with cucumber, lemon and a hint of green apple. Deep cleanse.",
+    "price": 149,
+    "originalPrice": null,
+    "category": "green-smoothies",
+    "image": "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=500",
+    "ingredients": [
+      "Celery",
+      "Cucumber",
+      "Green Apple",
+      "Lemon",
+      "Ginger"
+    ],
+    "nutritionInfo": {
+      "calories": 120,
+      "protein": "2g",
+      "carbs": "28g",
+      "fiber": "4g"
+    },
+    "tags": [
+      "celery",
+      "detox",
+      "cleanse",
+      "green"
+    ],
+    "isBestseller": false,
+    "isFeatured": false,
+    "isAvailable": true,
+    "rating": 4.5,
+    "reviewCount": 156,
+    "volume": "350ml",
+    "prepTime": "5 min",
+    "stock": 32
+  },
+  {
+    "name": "Pea & Mint Power Smoothie",
+    "description": "Sweet green peas, mint, banana and almond milk. Surprisingly delicious and protein-rich.",
+    "price": 169,
+    "originalPrice": 199,
+    "category": "green-smoothies",
+    "image": "https://images.unsplash.com/photo-1610970881699-44a5587cabec?w=500",
+    "ingredients": [
+      "Green Peas",
+      "Fresh Mint",
+      "Banana",
+      "Almond Milk",
+      "Honey",
+      "Vanilla"
+    ],
+    "nutritionInfo": {
+      "calories": 240,
+      "protein": "8g",
+      "carbs": "44g",
+      "fiber": "7g"
+    },
+    "tags": [
+      "pea",
+      "mint",
+      "protein",
+      "green"
+    ],
+    "isBestseller": false,
+    "isFeatured": true,
+    "isAvailable": true,
+    "rating": 4.7,
+    "reviewCount": 134,
+    "volume": "400ml",
+    "prepTime": "5 min",
+    "stock": 28
   }
 ]
