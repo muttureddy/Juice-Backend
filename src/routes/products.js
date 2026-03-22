@@ -82,10 +82,12 @@ router.post("/cloudinary-sign", adminAuth, (req, res) => {
       folder,
     });
   } catch (err) {
-    res.status(500).json({
-      message: "Failed to generate Cloudinary signature",
-      error: err.message,
-    });
+    res
+      .status(500)
+      .json({
+        message: "Failed to generate Cloudinary signature",
+        error: err.message,
+      });
   }
 });
 
