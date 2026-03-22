@@ -134,19 +134,61 @@ router.get("/sections", async (req, res) => {
       if (r._id) countMap[r._id] = r.count;
     });
 
-    const sections = SECTIONS.map((sec) => {
-      const categories = sec.categories
-        .map((cat) => ({ ...cat, count: countMap[cat.key] || 0 }))
-        .filter((cat) => cat.count > 0); // skip empty subcategories
+    // Merge hardcoded SECTIONS with any custom overrides in the sections collection
+    const customDocs = await db.collection("sections").find({}).toArray();
+    const customMap = {};
+    customDocs.forEach((d) => {
+      customMap[d.key] = d;
+    });
 
+    // Build base list: start with hardcoded, apply custom overlays, then add extra custom sections
+    const hardcodedKeys = SECTIONS.map((s) => s.key);
+
+    let allSections = SECTIONS.map((sec) => {
+      const override = customMap[sec.key];
+      const catList = override?.categories || sec.categories;
+      const categories = catList
+        .map((cat) => ({
+          key: cat.key,
+          label: cat.label,
+          emoji: cat.emoji,
+          count: countMap[cat.key] || 0,
+        }))
+        .filter((cat) => cat.count > 0);
       return {
         key: sec.key,
-        label: sec.label,
-        emoji: sec.emoji,
+        label: override?.label || sec.label,
+        emoji: override?.emoji || sec.emoji,
         totalCount: categories.reduce((s, c) => s + c.count, 0),
         categories,
       };
     });
+
+    // Add fully custom sections not in hardcoded list
+    customDocs
+      .filter((d) => !hardcodedKeys.includes(d.key))
+      .forEach((sec) => {
+        const categories = (sec.categories || [])
+          .map((cat) => ({
+            key: cat.key,
+            label: cat.label,
+            emoji: cat.emoji,
+            count: countMap[cat.key] || 0,
+          }))
+          .filter((cat) => cat.count > 0);
+        if (categories.length > 0) {
+          allSections.push({
+            key: sec.key,
+            label: sec.label,
+            emoji: sec.emoji,
+            totalCount: categories.reduce((s, c) => s + c.count, 0),
+            categories,
+          });
+        }
+      });
+
+    // Only return sections that have at least one product
+    const sections = allSections.filter((s) => s.totalCount > 0);
 
     res.json({ sections });
   } catch (err) {
@@ -346,6 +388,331 @@ router.post("/seed", adminAuth, async (req, res) => {
     res.json({ message: `${result.insertedCount} products seeded` });
   } catch (err) {
     res.status(500).json({ message: "Seeding failed", error: err.message });
+  }
+});
+
+// ── GET /sections/all  (admin) ──────────────────────────
+// Returns ALL sections for admin UI — includes sections with zero products.
+// Categories also show their product count.
+router.get("/sections/all", adminAuth, async (req, res) => {
+  try {
+    const db = getDB();
+
+    // Count ALL products (not just available) per category
+    const rows = await db
+      .collection("products")
+      .aggregate([{ $group: { _id: "$category", count: { $sum: 1 } } }])
+      .toArray();
+    const countMap = {};
+    rows.forEach((r) => {
+      if (r._id) countMap[r._id] = r.count;
+    });
+
+    // Get any custom overrides stored in the sections collection
+    const customDocs = await db.collection("sections").find({}).toArray();
+    const customMap = {};
+    customDocs.forEach((d) => {
+      customMap[d.key] = d;
+    });
+
+    // Build list: hardcoded SECTIONS merged with custom overrides
+    const hardcodedKeys = SECTIONS.map((s) => s.key);
+
+    const result = SECTIONS.map((sec) => {
+      const override = customMap[sec.key];
+      // Use custom categories list if this section has been overridden, else hardcoded
+      const catList = override?.categories || sec.categories;
+      const categories = catList.map((cat) => ({
+        key: cat.key,
+        label: cat.label,
+        emoji: cat.emoji || "🍃",
+        count: countMap[cat.key] || 0,
+      }));
+      return {
+        key: sec.key,
+        label: override?.label || sec.label,
+        emoji: override?.emoji || sec.emoji,
+        categories,
+        totalCount: categories.reduce((s, c) => s + c.count, 0),
+      };
+    });
+
+    // Append fully-custom sections (not in hardcoded list)
+    customDocs
+      .filter((d) => !hardcodedKeys.includes(d.key))
+      .forEach((sec) => {
+        const categories = (sec.categories || []).map((cat) => ({
+          key: cat.key,
+          label: cat.label,
+          emoji: cat.emoji || "🍃",
+          count: countMap[cat.key] || 0,
+        }));
+        result.push({
+          key: sec.key,
+          label: sec.label,
+          emoji: sec.emoji || "📦",
+          categories,
+          totalCount: categories.reduce((s, c) => s + c.count, 0),
+        });
+      });
+
+    res.json({ sections: result });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch sections", error: err.message });
+  }
+});
+
+// ── POST /sections/manage  (admin) ──────────────────────
+// Single endpoint for all section/category management.
+//
+// { action: 'add_section',    section: { key, label, emoji } }
+// { action: 'add_category',   sectionKey, category: { key, label, emoji } }
+// { action: 'delete_category', sectionKey, categoryKey }
+// { action: 'delete_section',  sectionKey }
+router.post("/sections/manage", adminAuth, async (req, res) => {
+  try {
+    const { action } = req.body;
+    const db = getDB();
+    const col = db.collection("sections");
+
+    // ── add_section ───────────────────────────────────────
+    if (action === "add_section") {
+      const { key, label, emoji } = req.body.section || {};
+      if (!label?.trim())
+        return res.status(400).json({ message: "Section label is required" });
+      if (!key?.trim())
+        return res.status(400).json({ message: "Section key is required" });
+
+      const slug = key
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+
+      // Don't allow overwriting a hardcoded section this way
+      if (SECTIONS.find((s) => s.key === slug))
+        return res
+          .status(400)
+          .json({
+            message: `"${slug}" is a built-in section and cannot be recreated`,
+          });
+
+      // Check duplicate
+      const existing = await col.findOne({ key: slug });
+      if (existing)
+        return res
+          .status(400)
+          .json({ message: `Section "${slug}" already exists` });
+
+      await col.insertOne({
+        key: slug,
+        label: label.trim(),
+        emoji: emoji || "📦",
+        categories: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      await logAction(
+        req.user,
+        "section_added",
+        "Section",
+        slug,
+        { label },
+        req,
+      );
+      return res.json({ message: `Section "${label}" added`, key: slug });
+    }
+
+    // ── add_category ──────────────────────────────────────
+    if (action === "add_category") {
+      const { sectionKey, category } = req.body;
+      if (!sectionKey)
+        return res.status(400).json({ message: "sectionKey is required" });
+      if (!category?.label?.trim())
+        return res.status(400).json({ message: "Category label is required" });
+      if (!category?.key?.trim())
+        return res.status(400).json({ message: "Category key is required" });
+
+      const catSlug = category.key
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      const newCat = {
+        key: catSlug,
+        label: category.label.trim(),
+        emoji: category.emoji || "🍃",
+      };
+
+      const hardcoded = SECTIONS.find((s) => s.key === sectionKey);
+      const existing = await col.findOne({ key: sectionKey });
+
+      if (!hardcoded && !existing)
+        return res
+          .status(404)
+          .json({ message: `Section "${sectionKey}" not found` });
+
+      if (existing) {
+        // Section already has a custom doc — just push to its categories
+        const already = (existing.categories || []).find(
+          (c) => c.key === catSlug,
+        );
+        if (already)
+          return res
+            .status(400)
+            .json({
+              message: `Subcategory "${catSlug}" already exists in this section`,
+            });
+        await col.updateOne(
+          { key: sectionKey },
+          { $push: { categories: newCat }, $set: { updatedAt: new Date() } },
+        );
+      } else {
+        // Hardcoded section — create a custom overlay that includes all existing
+        // hardcoded subcategories PLUS the new one
+        const hardcodedCats = hardcoded.categories.map((c) => ({
+          key: c.key,
+          label: c.label,
+          emoji: c.emoji || "🍃",
+        }));
+        const already = hardcodedCats.find((c) => c.key === catSlug);
+        if (already)
+          return res
+            .status(400)
+            .json({
+              message: `Subcategory "${catSlug}" already exists in this section`,
+            });
+
+        await col.insertOne({
+          key: sectionKey,
+          label: hardcoded.label,
+          emoji: hardcoded.emoji,
+          categories: [...hardcodedCats, newCat],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      }
+
+      await logAction(
+        req.user,
+        "category_added",
+        "Section",
+        sectionKey,
+        { category: catSlug },
+        req,
+      );
+      return res.json({
+        message: `Subcategory "${category.label}" added to ${sectionKey}`,
+      });
+    }
+
+    // ── delete_category ───────────────────────────────────
+    if (action === "delete_category") {
+      const { sectionKey, categoryKey } = req.body;
+      if (!sectionKey || !categoryKey)
+        return res
+          .status(400)
+          .json({ message: "sectionKey and categoryKey are required" });
+
+      // Block delete if products still use this category
+      const productCount = await db
+        .collection("products")
+        .countDocuments({ category: categoryKey });
+      if (productCount > 0)
+        return res
+          .status(400)
+          .json({
+            message: `Cannot delete: ${productCount} product(s) are still using this subcategory`,
+          });
+
+      const hardcoded = SECTIONS.find((s) => s.key === sectionKey);
+      const existing = await col.findOne({ key: sectionKey });
+
+      if (existing) {
+        // Remove from custom doc
+        await col.updateOne(
+          { key: sectionKey },
+          {
+            $pull: { categories: { key: categoryKey } },
+            $set: { updatedAt: new Date() },
+          },
+        );
+      } else if (hardcoded) {
+        // No custom doc yet — create one with the category removed
+        const cats = hardcoded.categories
+          .filter((c) => c.key !== categoryKey)
+          .map((c) => ({ key: c.key, label: c.label, emoji: c.emoji || "🍃" }));
+        await col.insertOne({
+          key: sectionKey,
+          label: hardcoded.label,
+          emoji: hardcoded.emoji,
+          categories: cats,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+      } else {
+        return res
+          .status(404)
+          .json({ message: `Section "${sectionKey}" not found` });
+      }
+
+      await logAction(
+        req.user,
+        "category_deleted",
+        "Section",
+        sectionKey,
+        { category: categoryKey },
+        req,
+      );
+      return res.json({ message: `Subcategory "${categoryKey}" removed` });
+    }
+
+    // ── delete_section ────────────────────────────────────
+    if (action === "delete_section") {
+      const { sectionKey } = req.body;
+      if (!sectionKey)
+        return res.status(400).json({ message: "sectionKey is required" });
+
+      if (SECTIONS.find((s) => s.key === sectionKey))
+        return res
+          .status(400)
+          .json({
+            message: `"${sectionKey}" is a built-in section and cannot be deleted`,
+          });
+
+      // Block delete if products exist in any of its categories
+      const customDoc = await col.findOne({ key: sectionKey });
+      const catKeys = (customDoc?.categories || []).map((c) => c.key);
+      if (catKeys.length > 0) {
+        const productCount = await db
+          .collection("products")
+          .countDocuments({ category: { $in: catKeys } });
+        if (productCount > 0)
+          return res
+            .status(400)
+            .json({
+              message: `Cannot delete: ${productCount} product(s) are in this section`,
+            });
+      }
+
+      await col.deleteOne({ key: sectionKey });
+      await logAction(
+        req.user,
+        "section_deleted",
+        "Section",
+        sectionKey,
+        {},
+        req,
+      );
+      return res.json({ message: `Section "${sectionKey}" deleted` });
+    }
+
+    return res.status(400).json({ message: `Unknown action: "${action}"` });
+  } catch (err) {
+    console.error("Section manage error:", err);
+    res
+      .status(500)
+      .json({ message: "Section management failed", error: err.message });
   }
 });
 
