@@ -3,3 +3,11 @@
 read more on particular product
 
 working fine as of now, no payment pages., new sections added
+
+
+
+DB_NAME=freshly_db
+# FRONTEND_URL=https://juice-frontend.onrender.com
+JWT_SECRET=91f73f9593823860847c07046d47ddb1
+# MONGODB_URI=mongodb+srv://testdbuser:BVyRNVvKrPopstbx@cluster0.3tdornf.mongodb.net/?appName=Cluster0
+MONGODB_URI=mongodb://testdbuser:BVyRNVvKrPopstbx@ac-qyvvpk9-shard-00-00.3tdornf.mongodb.net:27017,ac-qyvvpk9-shard-00-01.3tdornf.mongodb.net:27017,ac-qyvvpk9-shard-00-02.3tdornf.mongodb.net:27017/?ssl=true&replicaSet=atlas-hyt56w-shard-0&authSource=admin&appName=Cluster

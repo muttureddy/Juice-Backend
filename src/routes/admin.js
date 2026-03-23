@@ -640,13 +640,88 @@ router.get("/audit-logs", adminAuth, async (req, res) => {
 
 /* ══ 7. PAYMENTS ════════════════════════════════════ */
 
+/* GET /payments/summary — revenue stats */
+router.get("/payments/summary", adminAuth, async (req, res) => {
+  try {
+    const db = getDB();
+    const [revenue, byMethod, byStatus] = await Promise.all([
+      db
+        .collection("orders")
+        .aggregate([
+          {
+            $group: {
+              _id: "$paymentStatus",
+              total: { $sum: "$total" },
+              count: { $sum: 1 },
+            },
+          },
+        ])
+        .toArray(),
+      db
+        .collection("orders")
+        .aggregate([
+          { $match: { paymentStatus: "paid" } },
+          {
+            $group: {
+              _id: "$paymentMethod",
+              total: { $sum: "$total" },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { total: -1 } },
+        ])
+        .toArray(),
+      db
+        .collection("orders")
+        .aggregate([{ $group: { _id: "$paymentStatus", count: { $sum: 1 } } }])
+        .toArray(),
+    ]);
+
+    const getAmt = (s) => revenue.find((r) => r._id === s)?.total || 0;
+    const getCnt = (s) => byStatus.find((r) => r._id === s)?.count || 0;
+
+    res.json({
+      totalRevenue: getAmt("paid"),
+      pendingAmount: getAmt("pending"),
+      failedAmount: getAmt("failed"),
+      refundAmount: getAmt("refunded"),
+      paidCount: getCnt("paid"),
+      pendingCount: getCnt("pending"),
+      failedCount: getCnt("failed"),
+      byMethod,
+    });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch summary", error: err.message });
+  }
+});
+
+/* GET /payments — paginated list with search */
 router.get("/payments", adminAuth, async (req, res) => {
   try {
-    const { page = 1, limit = 20, status, method } = req.query;
+    const {
+      page = 1,
+      limit = 20,
+      paymentStatus,
+      paymentMethod,
+      search,
+    } = req.query;
     const db = getDB();
     const query = {};
-    if (status) query.paymentStatus = status;
-    if (method) query.paymentMethod = method;
+    if (paymentStatus && paymentStatus !== "all")
+      query.paymentStatus = paymentStatus;
+    if (paymentMethod && paymentMethod !== "all")
+      query.paymentMethod = paymentMethod;
+    if (search?.trim()) {
+      const re = new RegExp(search.trim(), "i");
+      query.$or = [
+        { orderId: re },
+        { "customerDetails.name": re },
+        { "customerDetails.phone": re },
+        { razorpayPaymentId: re },
+      ];
+    }
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
     const [payments, total] = await Promise.all([
@@ -656,12 +731,18 @@ router.get("/payments", adminAuth, async (req, res) => {
           projection: {
             orderId: 1,
             total: 1,
+            deliveryFee: 1,
+            subtotal: 1,
             paymentMethod: 1,
             paymentStatus: 1,
             orderStatus: 1,
+            razorpayOrderId: 1,
+            razorpayPaymentId: 1,
             createdAt: 1,
+            updatedAt: 1,
             "customerDetails.name": 1,
             "customerDetails.phone": 1,
+            "customerDetails.email": 1,
           },
         })
         .sort({ createdAt: -1 })
@@ -671,32 +752,60 @@ router.get("/payments", adminAuth, async (req, res) => {
       db.collection("orders").countDocuments(query),
     ]);
 
-    const [totalRevenue, pendingCount, paidCount] = await Promise.all([
-      db
-        .collection("orders")
-        .aggregate([
-          { $match: { paymentStatus: "paid" } },
-          { $group: { _id: null, total: { $sum: "$total" } } },
-        ])
-        .toArray(),
-      db.collection("orders").countDocuments({ paymentStatus: "pending" }),
-      db.collection("orders").countDocuments({ paymentStatus: "paid" }),
-    ]);
-
-    res.json({
-      payments,
-      total,
-      pages: Math.ceil(total / parseInt(limit)),
-      stats: {
-        totalRevenue: totalRevenue[0]?.total || 0,
-        pendingCount,
-        paidCount,
-      },
-    });
+    res.json({ payments, total, pages: Math.ceil(total / parseInt(limit)) });
   } catch (err) {
     res
       .status(500)
       .json({ message: "Failed to fetch payments", error: err.message });
+  }
+});
+
+/* PATCH /payments/:id/status — manually update payment status */
+router.patch("/payments/:id/status", adminAuth, async (req, res) => {
+  try {
+    const { paymentStatus } = req.body;
+    const valid = ["paid", "pending", "failed", "refunded"];
+    if (!valid.includes(paymentStatus))
+      return res.status(400).json({ message: "Invalid payment status" });
+
+    const _id = toObjectId(req.params.id);
+    if (!_id) return res.status(400).json({ message: "Invalid order ID" });
+
+    const db = getDB();
+    const now = new Date();
+    const update = { $set: { paymentStatus, updatedAt: now } };
+
+    // Auto-confirm order when manually marking paid
+    if (paymentStatus === "paid") {
+      update.$set.orderStatus = "confirmed";
+      update.$push = {
+        statusHistory: {
+          status: "confirmed",
+          note: "Payment manually marked as paid by admin",
+          timestamp: now,
+        },
+      };
+    }
+
+    const result = await db
+      .collection("orders")
+      .findOneAndUpdate({ _id }, update, { returnDocument: "after" });
+    if (!result) return res.status(404).json({ message: "Order not found" });
+
+    await logAction(
+      req.user,
+      "payment_status",
+      "Order",
+      req.params.id,
+      { paymentStatus },
+      req,
+    );
+
+    res.json({ message: `Payment status → ${paymentStatus}`, order: result });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Failed to update payment status", error: err.message });
   }
 });
 
@@ -809,6 +918,6 @@ router.delete("/contact/:id", adminAuth, async (req, res) => {
       .status(500)
       .json({ message: "Failed to delete query", error: err.message });
   }
-});
+}); 
 
 module.exports = router;
