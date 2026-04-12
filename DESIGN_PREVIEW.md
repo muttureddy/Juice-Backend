@@ -372,4 +372,4 @@ Returns to Cart page
 
 ---
 
-This design follows the existing Freshly glassmorphism aesthetic while adding essential e-commerce functionality! 🎉
+This design follows the existing Protein Spot glassmorphism aesthetic while adding essential e-commerce functionality! 🎉

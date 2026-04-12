@@ -52,7 +52,7 @@ router.post('/create-intent', auth, async (req, res) => {
         customerName: customerDetails?.name || '',
         customerPhone: customerDetails?.phone || ''
       },
-      description: `Freshly Order — ${customerDetails?.name || 'Customer'}`,
+      description: `Protein Spot Order — ${customerDetails?.name || 'Customer'}`,
       automatic_payment_methods: { enabled: true }
     });
 

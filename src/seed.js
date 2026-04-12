@@ -26,7 +26,7 @@ const path = require('path');
 const fs = require('fs');
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017';
-const DB_NAME     = process.env.DB_NAME     || 'freshly_db';
+const DB_NAME     = process.env.DB_NAME     || 'Protein Spot_db';
 
 async function seed() {
   const client = new MongoClient(MONGODB_URI);

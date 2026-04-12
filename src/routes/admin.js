@@ -386,7 +386,7 @@ router.patch('/inventory/:id', adminAuth, async (req, res) => {
 router.post('/setup', async (req, res) => {
   try {
     const { phone, secretKey } = req.body;
-    const expectedKey = process.env.ADMIN_SECRET_KEY || 'FRESHLY_ADMIN_2024';
+    const expectedKey = process.env.ADMIN_SECRET_KEY || 'Protein Spot_ADMIN_2024';
 
     if (secretKey !== expectedKey)
       return res.status(403).json({ message: 'Invalid secret key' });

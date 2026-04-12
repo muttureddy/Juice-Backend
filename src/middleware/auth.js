@@ -18,7 +18,7 @@
 const jwt        = require('jsonwebtoken');
 const { getDB, toObjectId } = require('../db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'freshly_jwt_secret_change_in_prod';
+const JWT_SECRET = process.env.JWT_SECRET || 'Protein Spot_jwt_secret_change_in_prod';
 
 // ── In-memory user cache ───────────────────────────────
 // Structure: Map<userId, { user, expiresAt }>

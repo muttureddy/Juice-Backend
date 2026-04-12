@@ -42,7 +42,7 @@ router.post('/cloudinary-sign', adminAuth, (req, res) => {
     }
 
     const timestamp = Math.round(Date.now() / 1000);
-    const folder    = 'freshly-products';
+    const folder    = 'Protein Spot-products';
 
     // Cloudinary signature: SHA-1 of "folder=...&timestamp=...{secret}"
     const signStr   = `folder=${folder}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;

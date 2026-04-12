@@ -75,6 +75,7 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/email-templates', require('./routes/emailTemplates'));
 
 // Health check
 app.get('/api/health', (req, res) => {

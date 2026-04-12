@@ -23,7 +23,7 @@ const connectDB = async () => {
   client = new MongoClient(uri);
 
   await client.connect();
-  db = client.db(process.env.DB_NAME || 'freshly_db');
+  db = client.db(process.env.DB_NAME || 'Protein Spot_db');
 
   // ── Users indexes ──────────────────────────────────
   await db.collection('users').createIndex({ phone: 1 }, { unique: true });

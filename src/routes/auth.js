@@ -28,7 +28,7 @@ const { createRateLimiter } = require('../middleware/rateLimiter');
 const otpSendLimiter   = createRateLimiter({ windowMs: 10*60*1000, max: 5, message: 'Too many OTP requests. Please wait 10 minutes.' });
 const otpResendLimiter = createRateLimiter({ windowMs: 10*60*1000, max: 3, message: 'Too many resend attempts. Please wait 10 minutes.' });
 
-const JWT_SECRET = process.env.JWT_SECRET || 'freshly_jwt_secret_change_in_prod';
+const JWT_SECRET = process.env.JWT_SECRET || 'Protein Spot_jwt_secret_change_in_prod';
 
 // ── Twilio (optional) ──────────────────────────────────
 let twilioClient = null;
@@ -78,7 +78,7 @@ router.post('/send-otp', otpSendLimiter, async (req, res) => {
     // Send SMS or log
     if (twilioClient) {
       await twilioClient.messages.create({
-        body: `Your Freshly OTP is: ${otp}. Valid for 10 minutes. Do not share.`,
+        body: `Your Protein Spot OTP is: ${otp}. Valid for 10 minutes. Do not share.`,
         from: process.env.TWILIO_PHONE_NUMBER,
         to: phone,
       });
@@ -166,7 +166,7 @@ router.post('/resend-otp', otpResendLimiter, async (req, res) => {
 
     if (twilioClient) {
       await twilioClient.messages.create({
-        body: `Your Freshly OTP is: ${otp}. Valid for 10 minutes.`,
+        body: `Your Protein Spot OTP is: ${otp}. Valid for 10 minutes.`,
         from: process.env.TWILIO_PHONE_NUMBER,
         to: phone,
       });
