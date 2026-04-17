@@ -80,7 +80,6 @@ router.post('/', auth, async (req, res) => {
     const deliveryFee = subtotal >= DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
     const total       = subtotal + deliveryFee;
     const now         = new Date();
-
     const order = {
       orderId: makeOrderId(),
       userId:  req.user._id,
