@@ -11,6 +11,7 @@ const userRoutes = require("./routes/users");
 const adminRoutes = require("./routes/admin");
 const contactRoutes = require("./routes/contact");
 const paymentRoutes = require("./routes/payments");
+const emailRoutes = require("./routes/emailTemplates");
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/email-templates", emailRoutes);
 
 // ── Health check ───────────────────────────────────────
 app.get("/api/health", (_req, res) =>
